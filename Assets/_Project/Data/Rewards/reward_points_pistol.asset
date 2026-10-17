@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b63ca3fe677654b42a90ac62b698f3e4, type: 3}
+  m_Name: reward_points_pistol
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.Data.RewardDefinition
+  _id: points_pistol
+  _displayName: Pistol Points
+  _icon: {fileID: 21300000, guid: f80f61312b8c6934e8febd5cc79c7a7e, type: 3}

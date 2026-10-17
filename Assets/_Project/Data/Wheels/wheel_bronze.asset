@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41b55c36706368247a04a28083c606d0, type: 3}
+  m_Name: wheel_bronze
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.Data.WheelDefinition
+  _title: BRONZE SPIN
+  _subtitle: Watch out for the bomb!
+  _wheelSprite: {fileID: 21300000, guid: 830c9d2e387a4ba499cb0b1250175696, type: 3}
+  _indicatorSprite: {fileID: 21300000, guid: c8ed99ba843bb0940a063ba4d4130ad8, type: 3}
+  _glowColor: {r: 1, g: 0.6, b: 0.3, a: 0.15}
+  _slices:
+  - _reward: {fileID: 11400000, guid: 05fb495f8bc82654f8cbc0479046b0fd, type: 2}
+    _baseAmount: 100
+    _isBomb: 0
+  - _reward: {fileID: 11400000, guid: f35091ac6b0873f45b8c83fc8998daad, type: 2}
+    _baseAmount: 1
+    _isBomb: 0
+  - _reward: {fileID: 0}
+    _baseAmount: 0
+    _isBomb: 1
+  - _reward: {fileID: 11400000, guid: 548164442f77747449c251b8a26e50b1, type: 2}
+    _baseAmount: 5
+    _isBomb: 0
+  - _reward: {fileID: 11400000, guid: 72fe0da9ff8d5dd40ab5bf303143b9c2, type: 2}
+    _baseAmount: 1
+    _isBomb: 0
+  - _reward: {fileID: 11400000, guid: 5a889c2520e9e004e803fae1e06c1db6, type: 2}
+    _baseAmount: 1
+    _isBomb: 0
+  - _reward: {fileID: 11400000, guid: 9baa421f370a5f342b1bac6d803ab359, type: 2}
+    _baseAmount: 1
+    _isBomb: 0
+  - _reward: {fileID: 11400000, guid: f1f7142366ec4d744b0311d5e639d2a9, type: 2}
+    _baseAmount: 1
+    _isBomb: 0
