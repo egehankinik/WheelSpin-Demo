@@ -1,28 +1,24 @@
-using TMPro;
 using UnityEngine;
-using WheelOfFortune.UI.Common;
+using WheelOfFortune.Gameplay;
 
 namespace WheelOfFortune.UI.Zone
 {
     public sealed class ZoneInfoView : MonoBehaviour
     {
-        private const string SuperZoneTextName = "ui_text_zone_info_super_value";
-        private const string SafeZoneTextName = "ui_text_zone_info_safe_value";
+        [SerializeField] private ZoneInfoEntryView[] _entries;
 
-        [SerializeField] private TMP_Text _superZoneText;
-        [SerializeField] private TMP_Text _safeZoneText;
-
-        public void Show(int nextSuperZone, int nextSafeZone)
+        public void Show(int currentZone, ZoneRules rules)
         {
-            _superZoneText.text = nextSuperZone.ToString();
-            _safeZoneText.text = nextSafeZone.ToString();
+            foreach (var entry in _entries)
+            {
+                entry.Show(rules.GetNextZoneOfType(currentZone, entry.ZoneType));
+            }
         }
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            _superZoneText = UiReferenceFinder.Find<TMP_Text>(this, SuperZoneTextName);
-            _safeZoneText = UiReferenceFinder.Find<TMP_Text>(this, SafeZoneTextName);
+            _entries = GetComponentsInChildren<ZoneInfoEntryView>(true);
         }
 #endif
     }

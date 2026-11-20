@@ -1,4 +1,5 @@
 using UnityEngine;
+using WheelOfFortune.Gameplay;
 
 namespace WheelOfFortune.Data
 {
@@ -10,9 +11,9 @@ namespace WheelOfFortune.Data
         [SerializeField, Min(0)] private int _startingBalance = 100;
         [SerializeField] private string _walletKey = "wallet_gold";
 
-        public RewardDefinition CurrencyReward => _currencyReward;
-        public int ReviveCost => _reviveCost;
         public int StartingBalance => _startingBalance;
         public string WalletKey => _walletKey;
+
+        public EconomyRules CreateRules() => new EconomyRules(_reviveCost, _currencyReward);
     }
 }

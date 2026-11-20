@@ -1,8 +1,9 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using WheelOfFortune.Core.Events;
 using WheelOfFortune.UI.Common;
+using WheelOfFortune.UI.Events;
 
 namespace WheelOfFortune.UI.Popups
 {
@@ -16,8 +17,7 @@ namespace WheelOfFortune.UI.Popups
         [SerializeField] private Button _reviveButton;
         [SerializeField] private TMP_Text _reviveCostText;
 
-        public event Action GiveUpClicked;
-        public event Action ReviveClicked;
+        private IEventBus _events;
 
         protected override string ContentName => "ui_popup_bomb_content";
 
@@ -34,6 +34,11 @@ namespace WheelOfFortune.UI.Popups
             _reviveButton.onClick.RemoveListener(HandleReviveClicked);
         }
 
+        public void Initialize(IEventBus events)
+        {
+            _events = events;
+        }
+
         public void Show(int reviveCost, bool canRevive)
         {
             _reviveCostText.text = AmountFormatter.Format(reviveCost);
@@ -41,9 +46,9 @@ namespace WheelOfFortune.UI.Popups
             Open();
         }
 
-        private void HandleGiveUpClicked() => GiveUpClicked?.Invoke();
+        private void HandleGiveUpClicked() => _events.Publish(new GiveUpRequestedEvent());
 
-        private void HandleReviveClicked() => ReviveClicked?.Invoke();
+        private void HandleReviveClicked() => _events.Publish(new ReviveRequestedEvent());
 
 #if UNITY_EDITOR
         protected override void OnValidate()

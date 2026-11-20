@@ -3,8 +3,10 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using WheelOfFortune.Core.Events;
 using WheelOfFortune.Data;
 using WheelOfFortune.UI.Common;
+using WheelOfFortune.UI.Events;
 
 namespace WheelOfFortune.UI.Wheel
 {
@@ -40,12 +42,11 @@ namespace WheelOfFortune.UI.Wheel
         [SerializeField, Min(1)] private int _bombShakeVibrato = 20;
         [SerializeField] private PunchSettings _zoneChangePunch = new PunchSettings(0.06f, 0.35f);
 
+        private IEventBus _events;
         private float _sliceAngle;
         private int _lastPegIndex;
         private Tween _spinTween;
         private Tween _transitionTween;
-
-        public event Action SpinClicked;
 
         private void OnEnable()
         {
@@ -57,6 +58,11 @@ namespace WheelOfFortune.UI.Wheel
             _spinButton.onClick.RemoveListener(HandleSpinClicked);
             _spinTween?.Kill();
             _transitionTween?.Kill(true);
+        }
+
+        public void Initialize(IEventBus events)
+        {
+            _events = events;
         }
 
         public void Bind(WheelDefinition wheel, Func<int, int> amountForSlice, bool animate)
@@ -147,7 +153,7 @@ namespace WheelOfFortune.UI.Wheel
             _lastPegIndex = pegIndex;
         }
 
-        private void HandleSpinClicked() => SpinClicked?.Invoke();
+        private void HandleSpinClicked() => _events.Publish(new SpinRequestedEvent());
 
 #if UNITY_EDITOR
         private void OnValidate()

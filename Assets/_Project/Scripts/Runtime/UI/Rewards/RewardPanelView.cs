@@ -1,9 +1,10 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using WheelOfFortune.Core.Events;
 using WheelOfFortune.Data;
 using WheelOfFortune.UI.Common;
+using WheelOfFortune.UI.Events;
 
 namespace WheelOfFortune.UI.Rewards
 {
@@ -25,7 +26,7 @@ namespace WheelOfFortune.UI.Rewards
         private readonly List<RewardRowView> _orderedRows = new List<RewardRowView>();
         private readonly Stack<RewardRowView> _pool = new Stack<RewardRowView>();
 
-        public event Action ExitClicked;
+        private IEventBus _events;
 
         private void OnEnable()
         {
@@ -35,6 +36,11 @@ namespace WheelOfFortune.UI.Rewards
         private void OnDisable()
         {
             _exitButton.onClick.RemoveListener(HandleExitClicked);
+        }
+
+        public void Initialize(IEventBus events)
+        {
+            _events = events;
         }
 
         public void SetExitInteractable(bool interactable) => _exitButton.interactable = interactable;
@@ -108,7 +114,7 @@ namespace WheelOfFortune.UI.Rewards
 
         private float RowHeight => ((RectTransform)_rowPrefab.transform).rect.height;
 
-        private void HandleExitClicked() => ExitClicked?.Invoke();
+        private void HandleExitClicked() => _events.Publish(new LeaveRequestedEvent());
 
 #if UNITY_EDITOR
         private void OnValidate()

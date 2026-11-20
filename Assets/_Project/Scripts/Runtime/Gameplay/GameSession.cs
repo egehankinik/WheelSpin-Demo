@@ -1,36 +1,37 @@
 using System;
+using WheelOfFortune.Core.Events;
 using WheelOfFortune.Data;
+using WheelOfFortune.Gameplay.Events;
 
 namespace WheelOfFortune.Gameplay
 {
     public sealed class GameSession
     {
         private readonly ZoneRules _rules;
-        private readonly IWheelProvider _wheels;
+        private readonly EconomyRules _economy;
         private readonly IRandomProvider _random;
+        private readonly IWallet _wallet;
+        private readonly IEventBus _events;
         private SpinResult _pendingResult;
 
-        public GameSession(ZoneRules rules, IWheelProvider wheels, IRandomProvider random)
+        public GameSession(ZoneRules rules, EconomyRules economy, IRandomProvider random, IWallet wallet, IEventBus events)
         {
             _rules = rules ?? throw new ArgumentNullException(nameof(rules));
-            _wheels = wheels ?? throw new ArgumentNullException(nameof(wheels));
+            _economy = economy ?? throw new ArgumentNullException(nameof(economy));
             _random = random ?? throw new ArgumentNullException(nameof(random));
-            Inventory = new RewardInventory();
+            _wallet = wallet ?? throw new ArgumentNullException(nameof(wallet));
+            _events = events ?? throw new ArgumentNullException(nameof(events));
+            Inventory = new RewardInventory(_events);
         }
-
-        public event Action<int> ZoneChanged;
-        public event Action BombHit;
-        public event Action RewardsCollected;
-        public event Action StateChanged;
 
         public RewardInventory Inventory { get; }
         public int CurrentZone { get; private set; }
         public SessionState State { get; private set; }
-        public ZoneType CurrentZoneType => _rules.GetZoneType(CurrentZone);
-        public WheelDefinition CurrentWheel => _wheels.GetWheel(CurrentZoneType);
+        public ZoneTypeDefinition CurrentZoneType => _rules.GetZoneType(CurrentZone);
+        public WheelDefinition CurrentWheel => _rules.GetWheel(CurrentZone);
         public bool CanSpin => State == SessionState.Idle;
         public bool CanLeave => State == SessionState.Idle && _rules.CanLeaveFrom(CurrentZoneType);
-        public bool CanRevive => State == SessionState.Lost;
+        public bool CanRevive => State == SessionState.Lost && _wallet.Balance >= _economy.ReviveCost;
 
         public int GetSliceAmount(int sliceIndex)
         {
@@ -71,7 +72,7 @@ namespace WheelOfFortune.Gameplay
             if (_pendingResult.IsBomb)
             {
                 SetState(SessionState.Lost);
-                BombHit?.Invoke();
+                _events.Publish(new BombHitEvent(_economy.ReviveCost, CanRevive));
                 return;
             }
 
@@ -87,14 +88,20 @@ namespace WheelOfFortune.Gameplay
                 return false;
             }
 
+            var earnedCurrency = Inventory.GetAmount(_economy.CurrencyReward);
+            if (earnedCurrency > 0)
+            {
+                _wallet.Add(earnedCurrency);
+            }
+
             SetState(SessionState.Collected);
-            RewardsCollected?.Invoke();
+            _events.Publish(new RewardsCollectedEvent(earnedCurrency, _wallet.Balance));
             return true;
         }
 
         public bool TryRevive()
         {
-            if (!CanRevive)
+            if (!CanRevive || !_wallet.TrySpend(_economy.ReviveCost))
             {
                 return false;
             }
@@ -118,13 +125,13 @@ namespace WheelOfFortune.Gameplay
         private void SetZone(int zone)
         {
             CurrentZone = zone;
-            ZoneChanged?.Invoke(CurrentZone);
+            _events.Publish(new ZoneChangedEvent(CurrentZone, CurrentZoneType));
         }
 
         private void SetState(SessionState state)
         {
             State = state;
-            StateChanged?.Invoke();
+            _events.Publish(new SessionStateChangedEvent(State));
         }
     }
 }

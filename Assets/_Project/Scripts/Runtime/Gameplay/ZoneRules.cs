@@ -1,24 +1,21 @@
 using System;
+using System.Collections.Generic;
+using WheelOfFortune.Data;
 
 namespace WheelOfFortune.Gameplay
 {
     public sealed class ZoneRules
     {
-        private readonly int _safeZoneInterval;
-        private readonly int _superZoneInterval;
+        private readonly List<ZoneTypeDefinition> _zoneTypes;
+        private readonly ZoneTypeDefinition _defaultZoneType;
         private readonly float _rewardGrowthPerZone;
-        private readonly bool _allowLeavingInNormalZones;
+        private readonly int _searchRange;
 
-        public ZoneRules(int safeZoneInterval, int superZoneInterval, float rewardGrowthPerZone, bool allowLeavingInNormalZones = false)
+        public ZoneRules(IEnumerable<ZoneTypeDefinition> zoneTypes, float rewardGrowthPerZone)
         {
-            if (safeZoneInterval < 1)
+            if (zoneTypes == null)
             {
-                throw new ArgumentOutOfRangeException(nameof(safeZoneInterval));
-            }
-
-            if (superZoneInterval < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(superZoneInterval));
+                throw new ArgumentNullException(nameof(zoneTypes));
             }
 
             if (rewardGrowthPerZone < 0f)
@@ -26,41 +23,65 @@ namespace WheelOfFortune.Gameplay
                 throw new ArgumentOutOfRangeException(nameof(rewardGrowthPerZone));
             }
 
-            _safeZoneInterval = safeZoneInterval;
-            _superZoneInterval = superZoneInterval;
+            _zoneTypes = new List<ZoneTypeDefinition>();
+            _searchRange = 1;
+            foreach (var zoneType in zoneTypes)
+            {
+                if (zoneType == null)
+                {
+                    continue;
+                }
+
+                if (zoneType.IsDefault)
+                {
+                    if (_defaultZoneType != null)
+                    {
+                        throw new ArgumentException("Only one zone type can be the default.", nameof(zoneTypes));
+                    }
+
+                    _defaultZoneType = zoneType;
+                    continue;
+                }
+
+                _zoneTypes.Add(zoneType);
+                _searchRange *= zoneType.Interval;
+            }
+
+            if (_defaultZoneType == null)
+            {
+                throw new ArgumentException("A default zone type with interval 0 is required.", nameof(zoneTypes));
+            }
+
             _rewardGrowthPerZone = rewardGrowthPerZone;
-            _allowLeavingInNormalZones = allowLeavingInNormalZones;
         }
 
-        public bool CanLeaveFrom(ZoneType zoneType)
-        {
-            return _allowLeavingInNormalZones || zoneType != ZoneType.Normal;
-        }
+        public bool CanLeaveFrom(ZoneTypeDefinition zoneType) => zoneType.IsSafe;
 
-        public ZoneType GetZoneType(int zone)
+        public ZoneTypeDefinition GetZoneType(int zone)
         {
             if (zone < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(zone));
             }
 
-            if (zone % _superZoneInterval == 0)
+            var result = _defaultZoneType;
+            foreach (var zoneType in _zoneTypes)
             {
-                return ZoneType.Super;
+                if (zoneType.Matches(zone) && zoneType.Interval > result.Interval)
+                {
+                    result = zoneType;
+                }
             }
 
-            if (zone % _safeZoneInterval == 0)
-            {
-                return ZoneType.Safe;
-            }
-
-            return ZoneType.Normal;
+            return result;
         }
 
-        public int GetNextZoneOfType(int fromZone, ZoneType zoneType)
+        public WheelDefinition GetWheel(int zone) => GetZoneType(zone).GetWheel(zone);
+
+        public int GetNextZoneOfType(int fromZone, ZoneTypeDefinition zoneType)
         {
-            var searchLimit = fromZone + _safeZoneInterval * _superZoneInterval;
-            for (var zone = Math.Max(1, fromZone); zone <= searchLimit; zone++)
+            var start = Math.Max(1, fromZone);
+            for (var zone = start; zone <= start + _searchRange; zone++)
             {
                 if (GetZoneType(zone) == zoneType)
                 {

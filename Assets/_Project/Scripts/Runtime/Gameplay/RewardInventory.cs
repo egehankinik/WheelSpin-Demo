@@ -1,15 +1,20 @@
 using System;
 using System.Collections.Generic;
+using WheelOfFortune.Core.Events;
 using WheelOfFortune.Data;
+using WheelOfFortune.Gameplay.Events;
 
 namespace WheelOfFortune.Gameplay
 {
     public sealed class RewardInventory
     {
         private readonly Dictionary<RewardDefinition, int> _amounts = new Dictionary<RewardDefinition, int>();
+        private readonly IEventBus _events;
 
-        public event Action<RewardDefinition, int> RewardChanged;
-        public event Action Cleared;
+        public RewardInventory(IEventBus events)
+        {
+            _events = events ?? throw new ArgumentNullException(nameof(events));
+        }
 
         public bool IsEmpty => _amounts.Count == 0;
 
@@ -32,13 +37,13 @@ namespace WheelOfFortune.Gameplay
 
             var total = GetAmount(reward) + amount;
             _amounts[reward] = total;
-            RewardChanged?.Invoke(reward, total);
+            _events.Publish(new RewardAmountChangedEvent(reward, total));
         }
 
         public void Clear()
         {
             _amounts.Clear();
-            Cleared?.Invoke();
+            _events.Publish(new RewardsClearedEvent());
         }
     }
 }

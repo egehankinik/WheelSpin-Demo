@@ -1,6 +1,9 @@
 using UnityEngine;
+using WheelOfFortune.Core.Events;
 using WheelOfFortune.Data;
 using WheelOfFortune.Gameplay;
+using WheelOfFortune.Gameplay.Events;
+using WheelOfFortune.UI.Events;
 using WheelOfFortune.UI.Popups;
 using WheelOfFortune.UI.Rewards;
 using WheelOfFortune.UI.Wheel;
@@ -21,47 +24,53 @@ namespace WheelOfFortune.Presentation
         [SerializeField] private CollectedPopupView _collectedPopupView;
         [SerializeField] private int _targetFrameRate = 60;
 
+        private IEventBus _events;
         private ZoneRules _rules;
         private GameSession _session;
-        private IWallet _wallet;
 
         private void Awake()
         {
             Application.targetFrameRate = _targetFrameRate;
+            _events = new EventBus();
             _rules = _zoneSettings.CreateRules();
-            _session = new GameSession(_rules, _zoneSettings, new SystemRandomProvider());
-            _wallet = new PlayerPrefsWallet(_economySettings.WalletKey, _economySettings.StartingBalance);
+            var wallet = new PlayerPrefsWallet(_economySettings.WalletKey, _economySettings.StartingBalance);
+            _session = new GameSession(_rules, _economySettings.CreateRules(), new SystemRandomProvider(), wallet, _events);
+
             _zoneBarView.Initialize(_rules);
+            _wheelView.Initialize(_events);
+            _rewardPanelView.Initialize(_events);
+            _bombPopupView.Initialize(_events);
+            _collectedPopupView.Initialize(_events);
         }
 
         private void OnEnable()
         {
-            _session.ZoneChanged += HandleZoneChanged;
-            _session.StateChanged += RefreshButtons;
-            _session.BombHit += HandleBombHit;
-            _session.RewardsCollected += HandleRewardsCollected;
-            _session.Inventory.RewardChanged += _rewardPanelView.SetAmount;
-            _session.Inventory.Cleared += _rewardPanelView.Clear;
-            _wheelView.SpinClicked += HandleSpinClicked;
-            _rewardPanelView.ExitClicked += HandleExitClicked;
-            _bombPopupView.GiveUpClicked += HandleGiveUpClicked;
-            _bombPopupView.ReviveClicked += HandleReviveClicked;
-            _collectedPopupView.RestartClicked += HandleRestartClicked;
+            _events.Subscribe<ZoneChangedEvent>(HandleZoneChanged);
+            _events.Subscribe<SessionStateChangedEvent>(HandleStateChanged);
+            _events.Subscribe<BombHitEvent>(HandleBombHit);
+            _events.Subscribe<RewardsCollectedEvent>(HandleRewardsCollected);
+            _events.Subscribe<RewardAmountChangedEvent>(HandleRewardAmountChanged);
+            _events.Subscribe<RewardsClearedEvent>(HandleRewardsCleared);
+            _events.Subscribe<SpinRequestedEvent>(HandleSpinRequested);
+            _events.Subscribe<LeaveRequestedEvent>(HandleLeaveRequested);
+            _events.Subscribe<GiveUpRequestedEvent>(HandleGiveUpRequested);
+            _events.Subscribe<ReviveRequestedEvent>(HandleReviveRequested);
+            _events.Subscribe<RestartRequestedEvent>(HandleRestartRequested);
         }
 
         private void OnDisable()
         {
-            _session.ZoneChanged -= HandleZoneChanged;
-            _session.StateChanged -= RefreshButtons;
-            _session.BombHit -= HandleBombHit;
-            _session.RewardsCollected -= HandleRewardsCollected;
-            _session.Inventory.RewardChanged -= _rewardPanelView.SetAmount;
-            _session.Inventory.Cleared -= _rewardPanelView.Clear;
-            _wheelView.SpinClicked -= HandleSpinClicked;
-            _rewardPanelView.ExitClicked -= HandleExitClicked;
-            _bombPopupView.GiveUpClicked -= HandleGiveUpClicked;
-            _bombPopupView.ReviveClicked -= HandleReviveClicked;
-            _collectedPopupView.RestartClicked -= HandleRestartClicked;
+            _events.Unsubscribe<ZoneChangedEvent>(HandleZoneChanged);
+            _events.Unsubscribe<SessionStateChangedEvent>(HandleStateChanged);
+            _events.Unsubscribe<BombHitEvent>(HandleBombHit);
+            _events.Unsubscribe<RewardsCollectedEvent>(HandleRewardsCollected);
+            _events.Unsubscribe<RewardAmountChangedEvent>(HandleRewardAmountChanged);
+            _events.Unsubscribe<RewardsClearedEvent>(HandleRewardsCleared);
+            _events.Unsubscribe<SpinRequestedEvent>(HandleSpinRequested);
+            _events.Unsubscribe<LeaveRequestedEvent>(HandleLeaveRequested);
+            _events.Unsubscribe<GiveUpRequestedEvent>(HandleGiveUpRequested);
+            _events.Unsubscribe<ReviveRequestedEvent>(HandleReviveRequested);
+            _events.Unsubscribe<RestartRequestedEvent>(HandleRestartRequested);
         }
 
         private void Start()
@@ -69,20 +78,31 @@ namespace WheelOfFortune.Presentation
             _session.StartRun();
         }
 
-        private void HandleZoneChanged(int zone)
+        private void HandleZoneChanged(ZoneChangedEvent zoneChanged)
         {
+            var zone = zoneChanged.Zone;
             _wheelView.Bind(_session.CurrentWheel, _session.GetSliceAmount, zone > 1);
             _zoneBarView.ShowZone(zone);
-            _zoneInfoView.Show(_rules.GetNextZoneOfType(zone, ZoneType.Super), _rules.GetNextZoneOfType(zone, ZoneType.Safe));
+            _zoneInfoView.Show(zone, _rules);
         }
 
-        private void RefreshButtons()
+        private void HandleStateChanged(SessionStateChangedEvent stateChanged)
         {
             _wheelView.SetSpinInteractable(_session.CanSpin);
             _rewardPanelView.SetExitInteractable(_session.CanLeave);
         }
 
-        private void HandleSpinClicked()
+        private void HandleRewardAmountChanged(RewardAmountChangedEvent amountChanged)
+        {
+            _rewardPanelView.SetAmount(amountChanged.Reward, amountChanged.Total);
+        }
+
+        private void HandleRewardsCleared(RewardsClearedEvent cleared)
+        {
+            _rewardPanelView.Clear();
+        }
+
+        private void HandleSpinRequested(SpinRequestedEvent request)
         {
             if (_session.TryBeginSpin(out var result))
             {
@@ -103,18 +123,17 @@ namespace WheelOfFortune.Presentation
             _rewardFlyAnimator.Play(result.Reward.Icon, from, to, _session.CompleteSpin);
         }
 
-        private void HandleExitClicked()
+        private void HandleLeaveRequested(LeaveRequestedEvent request)
         {
             _session.TryLeave();
         }
 
-        private void HandleBombHit()
+        private void HandleBombHit(BombHitEvent bombHit)
         {
-            var cost = _economySettings.ReviveCost;
-            _bombPopupView.Show(cost, _wallet.Balance >= cost);
+            _bombPopupView.Show(bombHit.ReviveCost, bombHit.CanAffordRevive);
         }
 
-        private void HandleGiveUpClicked()
+        private void HandleGiveUpRequested(GiveUpRequestedEvent request)
         {
             if (_session.TryGiveUp())
             {
@@ -122,29 +141,20 @@ namespace WheelOfFortune.Presentation
             }
         }
 
-        private void HandleReviveClicked()
+        private void HandleReviveRequested(ReviveRequestedEvent request)
         {
-            if (!_session.CanRevive || !_wallet.TrySpend(_economySettings.ReviveCost))
+            if (_session.TryRevive())
             {
-                return;
+                _bombPopupView.Close();
             }
-
-            _bombPopupView.Close();
-            _session.TryRevive();
         }
 
-        private void HandleRewardsCollected()
+        private void HandleRewardsCollected(RewardsCollectedEvent collected)
         {
-            var earnedCurrency = _session.Inventory.GetAmount(_economySettings.CurrencyReward);
-            if (earnedCurrency > 0)
-            {
-                _wallet.Add(earnedCurrency);
-            }
-
-            _collectedPopupView.Show(_wallet.Balance);
+            _collectedPopupView.Show(collected.Balance);
         }
 
-        private void HandleRestartClicked()
+        private void HandleRestartRequested(RestartRequestedEvent request)
         {
             _collectedPopupView.Close();
             _session.StartRun();

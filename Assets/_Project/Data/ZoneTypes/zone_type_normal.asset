@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25b3d6a8f9134560b21ab0f71de81a83, type: 3}
+  m_Name: zone_type_normal
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.Data.ZoneTypeDefinition
+  _interval: 0
+  _isSafe: 0
+  _wheelTiers:
+  - _fromZone: 1
+    _wheel: {fileID: 11400000, guid: aa32e5dadc4c1784892ee6331b43be1b, type: 2}
+  - _fromZone: 6
+    _wheel: {fileID: 11400000, guid: 7cb9827d00be4ec99dccc3006524afca, type: 2}
+  - _fromZone: 16
+    _wheel: {fileID: 11400000, guid: 70d268bee7464302836aad3055bc0389, type: 2}
+  - _fromZone: 31
+    _wheel: {fileID: 11400000, guid: 663b24ce4ce142cbb5a2e11f8b23b4d2, type: 2}

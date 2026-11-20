@@ -12,9 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3236ba002eb8c634bbd43b036ea10296, type: 3}
   m_Name: zone_settings
   m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.Data.ZoneSettings
-  _safeZoneInterval: 5
-  _superZoneInterval: 30
+  _zoneTypes:
+  - {fileID: 11400000, guid: 24875e2360954c469379fc95c1d35805, type: 2}
+  - {fileID: 11400000, guid: 11c36b9f79674ebaa9db2ebbb9987db9, type: 2}
+  - {fileID: 11400000, guid: 5be4a43da90f481ab5734ccdf7f39a27, type: 2}
   _rewardGrowthPerZone: 0.1
-  _normalWheel: {fileID: 11400000, guid: aa32e5dadc4c1784892ee6331b43be1b, type: 2}
-  _safeWheel: {fileID: 11400000, guid: a57a0d19c826f77439a62628b7415171, type: 2}
-  _superWheel: {fileID: 11400000, guid: d452221feee89794c98caf069a4392f0, type: 2}

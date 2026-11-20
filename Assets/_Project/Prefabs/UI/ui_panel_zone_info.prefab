@@ -223,6 +223,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7806058890074908642}
+  - component: {fileID: 5123987401652238712}
   m_Layer: 5
   m_Name: ui_zone_info_safe
   m_TagString: Untagged
@@ -413,6 +414,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8504266535281199228}
+  - component: {fileID: 5123987401652238711}
   m_Layer: 5
   m_Name: ui_zone_info_super
   m_TagString: Untagged
@@ -519,8 +521,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7159bab93ce0065418142db71b159149, type: 3}
   m_Name: 
   m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneInfoView
-  _superZoneText: {fileID: 6771229044417718863}
-  _safeZoneText: {fileID: 222546010628366673}
+  _entries:
+  - {fileID: 5123987401652238711}
+  - {fileID: 5123987401652238712}
 --- !u!1 &4678713316420260828
 GameObject:
   m_ObjectHideFlags: 0
@@ -1159,3 +1162,31 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &5123987401652238711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2823985042160132969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ff8eebf168c4bb99469fa3f6b624e5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneInfoEntryView
+  _zoneType: {fileID: 11400000, guid: 5be4a43da90f481ab5734ccdf7f39a27, type: 2}
+  _zoneText: {fileID: 6771229044417718863}
+--- !u!114 &5123987401652238712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486520666760935338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ff8eebf168c4bb99469fa3f6b624e5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneInfoEntryView
+  _zoneType: {fileID: 11400000, guid: 11c36b9f79674ebaa9db2ebbb9987db9, type: 2}
+  _zoneText: {fileID: 222546010628366673}

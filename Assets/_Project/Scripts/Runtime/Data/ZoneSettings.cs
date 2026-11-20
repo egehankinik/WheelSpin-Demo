@@ -1,44 +1,37 @@
+using System.Collections.Generic;
 using UnityEngine;
 using WheelOfFortune.Gameplay;
 
 namespace WheelOfFortune.Data
 {
     [CreateAssetMenu(fileName = "zone_settings", menuName = "WheelOfFortune/Zone Settings")]
-    public sealed class ZoneSettings : ScriptableObject, IWheelProvider
+    public sealed class ZoneSettings : ScriptableObject
     {
-        [SerializeField, Min(1)] private int _safeZoneInterval = 5;
-        [SerializeField, Min(1)] private int _superZoneInterval = 30;
+        [SerializeField] private List<ZoneTypeDefinition> _zoneTypes = new List<ZoneTypeDefinition>();
         [SerializeField, Min(0f)] private float _rewardGrowthPerZone = 0.1f;
-        [SerializeField] private bool _allowLeavingInNormalZones = true;
-        [SerializeField] private WheelDefinition _normalWheel;
-        [SerializeField] private WheelDefinition _safeWheel;
-        [SerializeField] private WheelDefinition _superWheel;
 
-        public ZoneRules CreateRules() => new ZoneRules(_safeZoneInterval, _superZoneInterval, _rewardGrowthPerZone, _allowLeavingInNormalZones);
+        public IReadOnlyList<ZoneTypeDefinition> ZoneTypes => _zoneTypes;
 
-        public WheelDefinition GetWheel(ZoneType zoneType)
-        {
-            switch (zoneType)
-            {
-                case ZoneType.Super:
-                    return _superWheel;
-                case ZoneType.Safe:
-                    return _safeWheel;
-                default:
-                    return _normalWheel;
-            }
-        }
+        public ZoneRules CreateRules() => new ZoneRules(_zoneTypes, _rewardGrowthPerZone);
 
         private void OnValidate()
         {
-            if (_safeWheel != null && _safeWheel.HasBomb)
+            var defaultCount = 0;
+            foreach (var zoneType in _zoneTypes)
             {
-                Debug.LogWarning($"{name}: safe wheel must not contain a bomb.", this);
+                if (zoneType == null)
+                {
+                    Debug.LogWarning($"{name}: zone type list has an empty entry.", this);
+                }
+                else if (zoneType.IsDefault)
+                {
+                    defaultCount++;
+                }
             }
 
-            if (_superWheel != null && _superWheel.HasBomb)
+            if (defaultCount != 1)
             {
-                Debug.LogWarning($"{name}: super wheel must not contain a bomb.", this);
+                Debug.LogWarning($"{name}: exactly one zone type must have interval 0, found {defaultCount}.", this);
             }
         }
     }

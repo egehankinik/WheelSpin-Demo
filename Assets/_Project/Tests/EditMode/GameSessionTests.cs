@@ -1,7 +1,8 @@
 using NUnit.Framework;
-using UnityEngine;
+using WheelOfFortune.Core.Events;
 using WheelOfFortune.Data;
 using WheelOfFortune.Gameplay;
+using WheelOfFortune.Gameplay.Events;
 
 namespace WheelOfFortune.Tests
 {
@@ -9,35 +10,44 @@ namespace WheelOfFortune.Tests
     {
         private const int RewardSliceIndex = 0;
         private const int BombSliceIndex = 1;
+        private const int ReviveCost = 25;
+        private const int StartingBalance = 100;
 
+        private TestAssets _assets;
         private RewardDefinition _gold;
-        private FakeWheelProvider _wheels;
+        private ZoneTypeDefinition _normal;
+        private ZoneTypeDefinition _safe;
+        private ZoneTypeDefinition _super;
         private FixedRandomProvider _random;
+        private FakeWallet _wallet;
+        private EventBus _events;
         private GameSession _session;
 
         [SetUp]
         public void SetUp()
         {
-            _gold = ScriptableObject.CreateInstance<RewardDefinition>();
-            _gold.Initialize(null);
+            _assets = new TestAssets();
+            _gold = _assets.Reward();
+            var riskyWheel = _assets.Wheel(new WheelSlice(_gold, 100), WheelSlice.Bomb());
+            var safeWheel = _assets.Wheel(new WheelSlice(_gold, 100), new WheelSlice(_gold, 200));
+            _normal = _assets.ZoneType(0, false, new WheelTier(1, riskyWheel));
+            _safe = _assets.ZoneType(5, true, new WheelTier(1, safeWheel));
+            _super = _assets.ZoneType(30, true, new WheelTier(1, safeWheel));
 
-            var normalWheel = CreateWheel(new WheelSlice(_gold, 100), WheelSlice.Bomb());
-            var safeWheel = CreateWheel(new WheelSlice(_gold, 100), new WheelSlice(_gold, 200));
-            _wheels = new FakeWheelProvider(normalWheel, safeWheel, safeWheel);
             _random = new FixedRandomProvider();
-            _session = new GameSession(new ZoneRules(5, 30, 0f), _wheels, _random);
+            _events = new EventBus();
+            _session = CreateSession(StartingBalance);
             _session.StartRun();
         }
 
         [TearDown]
         public void TearDown()
         {
-            Object.DestroyImmediate(_gold);
-            _wheels.Destroy();
+            _assets.DestroyAll();
         }
 
         [Test]
-        public void Start_BeginsAtZoneOneAndIdle()
+        public void StartRun_BeginsAtZoneOneAndIdle()
         {
             Assert.AreEqual(1, _session.CurrentZone);
             Assert.AreEqual(SessionState.Idle, _session.State);
@@ -55,12 +65,29 @@ namespace WheelOfFortune.Tests
         }
 
         [Test]
-        public void BombSpin_SetsLostState()
+        public void RewardSpin_PublishesZoneChangedWithZoneType()
         {
+            ZoneChangedEvent received = default;
+            _events.Subscribe<ZoneChangedEvent>(e => received = e);
+
+            SpinTo(5);
+
+            Assert.AreEqual(5, received.Zone);
+            Assert.AreSame(_safe, received.ZoneType);
+        }
+
+        [Test]
+        public void BombSpin_SetsLostStateAndPublishesReviveCost()
+        {
+            BombHitEvent received = default;
+            _events.Subscribe<BombHitEvent>(e => received = e);
+
             Spin(BombSliceIndex);
 
             Assert.AreEqual(SessionState.Lost, _session.State);
             Assert.IsFalse(_session.CanSpin);
+            Assert.AreEqual(ReviveCost, received.ReviveCost);
+            Assert.IsTrue(received.CanAffordRevive);
         }
 
         [Test]
@@ -76,14 +103,36 @@ namespace WheelOfFortune.Tests
         }
 
         [Test]
-        public void Revive_AfterBomb_KeepsRewards()
+        public void Revive_AfterBomb_SpendsCostAndKeepsRewards()
         {
             Spin(RewardSliceIndex);
             Spin(BombSliceIndex);
 
             Assert.IsTrue(_session.TryRevive());
+
+            Assert.AreEqual(StartingBalance - ReviveCost, _wallet.Balance);
             Assert.AreEqual(100, _session.Inventory.GetAmount(_gold));
             Assert.AreEqual(SessionState.Idle, _session.State);
+        }
+
+        [Test]
+        public void Revive_WithoutEnoughCurrency_FailsAndKeepsBalance()
+        {
+            _session = CreateSession(ReviveCost - 1);
+            _session.StartRun();
+            Spin(BombSliceIndex);
+
+            Assert.IsFalse(_session.CanRevive);
+            Assert.IsFalse(_session.TryRevive());
+            Assert.AreEqual(ReviveCost - 1, _wallet.Balance);
+            Assert.AreEqual(SessionState.Lost, _session.State);
+        }
+
+        [Test]
+        public void Revive_WhenNotLost_Fails()
+        {
+            Assert.IsFalse(_session.TryRevive());
+            Assert.AreEqual(StartingBalance, _wallet.Balance);
         }
 
         [Test]
@@ -98,42 +147,67 @@ namespace WheelOfFortune.Tests
         [Test]
         public void CannotLeaveInNormalZone()
         {
+            Assert.AreSame(_normal, _session.CurrentZoneType);
+            Assert.IsFalse(_session.CanLeave);
             Assert.IsFalse(_session.TryLeave());
-        }
-
-        [Test]
-        public void CanLeaveInNormalZone_WhenRulesAllowIt()
-        {
-            var session = new GameSession(new ZoneRules(5, 30, 0f, true), _wheels, _random);
-            session.StartRun();
-
-            Assert.IsTrue(session.TryLeave());
         }
 
         [Test]
         public void CanLeaveInSafeZone()
         {
-            for (var i = 0; i < 4; i++)
-            {
-                Spin(RewardSliceIndex);
-            }
+            SpinTo(5);
 
-            Assert.AreEqual(ZoneType.Safe, _session.CurrentZoneType);
+            Assert.AreSame(_safe, _session.CurrentZoneType);
             Assert.IsTrue(_session.TryLeave());
             Assert.AreEqual(SessionState.Collected, _session.State);
         }
 
         [Test]
+        public void CanLeaveInSuperZone()
+        {
+            SpinTo(30);
+
+            Assert.AreSame(_super, _session.CurrentZoneType);
+            Assert.IsTrue(_session.TryLeave());
+        }
+
+        [Test]
         public void CannotLeaveWhileSpinning()
         {
-            for (var i = 0; i < 4; i++)
-            {
-                Spin(RewardSliceIndex);
-            }
-
+            SpinTo(5);
             _session.TryBeginSpin(out _);
 
             Assert.IsFalse(_session.TryLeave());
+        }
+
+        [Test]
+        public void Leave_DepositsCollectedCurrencyIntoWallet()
+        {
+            RewardsCollectedEvent received = default;
+            _events.Subscribe<RewardsCollectedEvent>(e => received = e);
+            SpinTo(5);
+
+            _session.TryLeave();
+
+            Assert.AreEqual(StartingBalance + 400, _wallet.Balance);
+            Assert.AreEqual(400, received.DepositedCurrency);
+            Assert.AreEqual(_wallet.Balance, received.Balance);
+        }
+
+        private GameSession CreateSession(int balance)
+        {
+            _wallet = new FakeWallet(balance);
+            var rules = new ZoneRules(new[] { _normal, _safe, _super }, 0f);
+            var economy = new EconomyRules(ReviveCost, _gold);
+            return new GameSession(rules, economy, _random, _wallet, _events);
+        }
+
+        private void SpinTo(int zone)
+        {
+            while (_session.CurrentZone < zone)
+            {
+                Spin(RewardSliceIndex);
+            }
         }
 
         private void Spin(int sliceIndex)
@@ -141,57 +215,6 @@ namespace WheelOfFortune.Tests
             _random.NextValue = sliceIndex;
             _session.TryBeginSpin(out _);
             _session.CompleteSpin();
-        }
-
-        private static WheelDefinition CreateWheel(params WheelSlice[] slices)
-        {
-            var wheel = ScriptableObject.CreateInstance<WheelDefinition>();
-            wheel.Initialize(slices);
-            return wheel;
-        }
-
-        private sealed class FixedRandomProvider : IRandomProvider
-        {
-            public int NextValue { get; set; }
-
-            public int Range(int minInclusive, int maxExclusive) => NextValue;
-        }
-
-        private sealed class FakeWheelProvider : IWheelProvider
-        {
-            private readonly WheelDefinition _normal;
-            private readonly WheelDefinition _safe;
-            private readonly WheelDefinition _super;
-
-            public FakeWheelProvider(WheelDefinition normal, WheelDefinition safe, WheelDefinition super)
-            {
-                _normal = normal;
-                _safe = safe;
-                _super = super;
-            }
-
-            public WheelDefinition GetWheel(ZoneType zoneType)
-            {
-                switch (zoneType)
-                {
-                    case ZoneType.Super:
-                        return _super;
-                    case ZoneType.Safe:
-                        return _safe;
-                    default:
-                        return _normal;
-                }
-            }
-
-            public void Destroy()
-            {
-                Object.DestroyImmediate(_normal);
-                Object.DestroyImmediate(_safe);
-                if (_super != _safe)
-                {
-                    Object.DestroyImmediate(_super);
-                }
-            }
         }
     }
 }
