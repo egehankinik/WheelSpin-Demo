@@ -1,10 +1,8 @@
-using WheelOfFortune.Data;
-
 namespace WheelOfFortune.Gameplay
 {
     public readonly struct SpinResult
     {
-        public SpinResult(int sliceIndex, WheelSlice slice, int amount)
+        public SpinResult(int sliceIndex, SliceModel slice, int amount)
         {
             SliceIndex = sliceIndex;
             Slice = slice;
@@ -12,9 +10,17 @@ namespace WheelOfFortune.Gameplay
         }
 
         public int SliceIndex { get; }
-        public WheelSlice Slice { get; }
+        public SliceModel Slice { get; }
         public int Amount { get; }
-        public bool IsBomb => Slice.IsBomb;
-        public RewardDefinition Reward => Slice.Reward;
+
+        public bool IsBomb
+        {
+            get { return Slice.IsBomb; }
+        }
+
+        public RewardModel Reward
+        {
+            get { return Slice.Reward; }
+        }
     }
 }

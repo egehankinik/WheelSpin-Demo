@@ -226,7 +226,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71ae7824d8c56a84c96031784c0cfe7b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneBarView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneBarViewMono
   _theme: {fileID: 11400000, guid: 1ebd1d47822314040afc2707c0e4281b, type: 2}
   _content: {fileID: 6361077047908875907}
   _currentFrameImage: {fileID: 6871046182245314263}
@@ -541,7 +541,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!1001 &1741673076088987028
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -654,7 +654,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!1001 &2773287414943748755
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -767,7 +767,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!1001 &4179329851077347183
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -880,7 +880,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!1001 &4184664974817115799
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -993,7 +993,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!1001 &4272638600593587182
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1106,7 +1106,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!1001 &4375140908429807197
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1219,7 +1219,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!1001 &5038010369810905085
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1327,7 +1327,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!224 &8015379702353101751 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3086868870962754634, guid: de416296d7b8b6a419c583a30feb0d93, type: 3}
@@ -1440,7 +1440,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!224 &8272427890774396127 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3086868870962754634, guid: de416296d7b8b6a419c583a30feb0d93, type: 3}
@@ -1553,7 +1553,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!224 &8333478736256686337 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3086868870962754634, guid: de416296d7b8b6a419c583a30feb0d93, type: 3}
@@ -1666,7 +1666,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!224 &8155628863715173583 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3086868870962754634, guid: de416296d7b8b6a419c583a30feb0d93, type: 3}
@@ -1779,7 +1779,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!224 &8606360950114266945 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3086868870962754634, guid: de416296d7b8b6a419c583a30feb0d93, type: 3}
@@ -1892,7 +1892,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!224 &4904948054572968188 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3086868870962754634, guid: de416296d7b8b6a419c583a30feb0d93, type: 3}
@@ -2005,7 +2005,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!224 &6416299439048557841 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3086868870962754634, guid: de416296d7b8b6a419c583a30feb0d93, type: 3}
@@ -2118,7 +2118,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
 --- !u!224 &5786191021147090515 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3086868870962754634, guid: de416296d7b8b6a419c583a30feb0d93, type: 3}

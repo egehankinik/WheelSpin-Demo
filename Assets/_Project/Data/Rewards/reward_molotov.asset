@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: reward_molotov
   m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.Data.RewardDefinition
   _id: molotov
-  _displayName: Molotov
   _icon: {fileID: 21300000, guid: 3a64fbd5f829e0841aaa9ebccd5373ce, type: 3}
+  _isCurrency: 0
+  _startingBalance: 0

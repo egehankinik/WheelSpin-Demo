@@ -124,7 +124,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82f2ef88136243c4ea75112c8d649522, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceViewMono
   _rectTransform: {fileID: 3708807025877400045}
   _iconImage: {fileID: 5878781863309054828}
   _amountText: {fileID: 673890097542939782}

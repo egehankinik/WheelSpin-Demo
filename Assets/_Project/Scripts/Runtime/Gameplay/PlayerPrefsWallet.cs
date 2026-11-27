@@ -5,53 +5,85 @@ namespace WheelOfFortune.Gameplay
 {
     public sealed class PlayerPrefsWallet : IWallet
     {
-        private readonly string _key;
+        #region Fields
 
-        public PlayerPrefsWallet(string key, int startingBalance)
+        private readonly string _keyPrefix;
+
+        #endregion
+
+        public PlayerPrefsWallet(string keyPrefix)
         {
-            if (string.IsNullOrEmpty(key))
+            if (string.IsNullOrEmpty(keyPrefix))
             {
-                throw new ArgumentException("Wallet key is required.", nameof(key));
+                throw new ArgumentException("Wallet key prefix is required.", nameof(keyPrefix));
             }
 
-            _key = key;
-            Balance = PlayerPrefs.GetInt(_key, startingBalance);
+            _keyPrefix = keyPrefix;
         }
 
-        public int Balance { get; private set; }
+        #region Public Methods
 
-        public void Add(int amount)
+        public int GetBalance(RewardModel currency)
+        {
+            ValidateCurrency(currency);
+            return PlayerPrefs.GetInt(GetKey(currency), currency.StartingBalance);
+        }
+
+        public void Add(RewardModel currency, int amount)
         {
             if (amount <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(amount));
             }
 
-            Balance += amount;
-            Save();
+            SetBalance(currency, GetBalance(currency) + amount);
         }
 
-        public bool TrySpend(int amount)
+        public bool TrySpend(RewardModel currency, int amount)
         {
             if (amount < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(amount));
             }
 
-            if (Balance < amount)
+            var balance = GetBalance(currency);
+            if (balance < amount)
             {
                 return false;
             }
 
-            Balance -= amount;
-            Save();
+            SetBalance(currency, balance - amount);
             return true;
         }
 
-        private void Save()
+        #endregion
+
+        #region Private Methods
+
+        private void SetBalance(RewardModel currency, int balance)
         {
-            PlayerPrefs.SetInt(_key, Balance);
+            PlayerPrefs.SetInt(GetKey(currency), balance);
             PlayerPrefs.Save();
         }
+
+        private string GetKey(RewardModel currency)
+        {
+            return _keyPrefix + currency.Id;
+        }
+
+        private static void ValidateCurrency(RewardModel currency)
+        {
+            if (currency == null)
+            {
+                throw new ArgumentNullException(nameof(currency));
+            }
+
+            if (!currency.IsCurrency)
+            {
+                throw new ArgumentException($"{currency.Id} is not a currency.", nameof(currency));
+            }
+        }
+
+        #endregion
     }
 }

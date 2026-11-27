@@ -1,19 +1,53 @@
 using UnityEngine;
-using WheelOfFortune.Gameplay;
 
 namespace WheelOfFortune.Data
 {
     [CreateAssetMenu(fileName = "economy_settings", menuName = "WheelOfFortune/Economy Settings")]
     public sealed class EconomySettings : ScriptableObject
     {
-        [SerializeField] private RewardDefinition _currencyReward;
+        #region Fields
+
+        [SerializeField] private RewardDefinition _reviveCurrency;
         [SerializeField, Min(0)] private int _reviveCost = 25;
-        [SerializeField, Min(0)] private int _startingBalance = 100;
-        [SerializeField] private string _walletKey = "wallet_gold";
+        [SerializeField] private string _walletKeyPrefix = "wallet_";
 
-        public int StartingBalance => _startingBalance;
-        public string WalletKey => _walletKey;
+        #endregion
 
-        public EconomyRules CreateRules() => new EconomyRules(_reviveCost, _currencyReward);
+        #region Properties
+
+        public RewardDefinition ReviveCurrency
+        {
+            get { return _reviveCurrency; }
+        }
+
+        public int ReviveCost
+        {
+            get { return _reviveCost; }
+        }
+
+        public string WalletKeyPrefix
+        {
+            get { return _walletKeyPrefix; }
+        }
+
+        #endregion
+
+        #region Editor
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (!_reviveCurrency)
+            {
+                Debug.LogError($"{name}: revive currency is not assigned.", this);
+            }
+            else if (!_reviveCurrency.IsCurrency)
+            {
+                Debug.LogError($"{name}: {_reviveCurrency.name} is not marked as a currency.", this);
+            }
+        }
+#endif
+
+        #endregion
     }
 }

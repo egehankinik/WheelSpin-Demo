@@ -226,7 +226,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 733b78e5ecfb0274488af8ad7b1a09d3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Popups.CollectedPopupView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Popups.CollectedPopupViewMono
 --- !u!224 &226988323 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3122998479157833107, guid: 6e2458a3db5290f429fade50b2e5ac21, type: 3}
@@ -419,7 +419,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b98be522c52705a44b6ec928ddc252f1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Popups.BombPopupView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Popups.BombPopupViewMono
 --- !u!1 &690584079
 GameObject:
   m_ObjectHideFlags: 0
@@ -707,7 +707,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7159bab93ce0065418142db71b159149, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneInfoView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneInfoViewMono
 --- !u!1 &1077384890
 GameObject:
   m_ObjectHideFlags: 0
@@ -907,7 +907,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: abbf7d7aba205ed4da8d011ec0b8837c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelViewMono
 --- !u!1 &1384611358
 GameObject:
   m_ObjectHideFlags: 0
@@ -980,7 +980,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6c1f95f755bebf64988f838f7d98c265, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Rewards.RewardFlyAnimator
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Rewards.RewardFlyAnimatorMono
   _flyLayer: {fileID: 1384611359}
   _iconPrefab: {fileID: 2485480321102161406, guid: 182744cea7d50df4d9267f8d10476fa1, type: 3}
   _iconCount: 5
@@ -1107,7 +1107,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71ae7824d8c56a84c96031784c0cfe7b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneBarView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneBarViewMono
 --- !u!1001 &1725275485
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1224,7 +1224,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2ec953fe996abdb459fcdbb5e41c3c85, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Rewards.RewardPanelView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Rewards.RewardPanelViewMono
 --- !u!1 &1957599559
 GameObject:
   m_ObjectHideFlags: 0
@@ -1253,16 +1253,17 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c2cb4fb974aea0943ae4db7afdc5c027, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.Presentation.WheelGamePresenter
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.Presentation.WheelGameBootstrapMono
   _zoneSettings: {fileID: 11400000, guid: e7f70bc343e1588449a2b3ae5044cb35, type: 2}
   _economySettings: {fileID: 11400000, guid: ef4c55f2c993be744ae557b4a1f96ac2, type: 2}
-  _wheelView: {fileID: 1102401937}
-  _zoneBarView: {fileID: 1405007404}
-  _zoneInfoView: {fileID: 945303841}
-  _rewardPanelView: {fileID: 1725275487}
-  _rewardFlyAnimator: {fileID: 1384611361}
-  _bombPopupView: {fileID: 501553009}
-  _collectedPopupView: {fileID: 226988322}
+  _views:
+    _wheelView: {fileID: 1102401937}
+    _zoneBarView: {fileID: 1405007404}
+    _zoneInfoView: {fileID: 945303841}
+    _rewardPanelView: {fileID: 1725275487}
+    _rewardFlyAnimator: {fileID: 1384611361}
+    _bombPopupView: {fileID: 501553009}
+    _collectedPopupView: {fileID: 226988322}
   _targetFrameRate: 60
 --- !u!4 &1957599561
 Transform:

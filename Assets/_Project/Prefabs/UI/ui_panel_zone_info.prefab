@@ -520,7 +520,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7159bab93ce0065418142db71b159149, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneInfoView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneInfoViewMono
   _entries:
   - {fileID: 5123987401652238711}
   - {fileID: 5123987401652238712}
@@ -1173,7 +1173,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4ff8eebf168c4bb99469fa3f6b624e5a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneInfoEntryView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneInfoEntryViewMono
   _zoneType: {fileID: 11400000, guid: 5be4a43da90f481ab5734ccdf7f39a27, type: 2}
   _zoneText: {fileID: 6771229044417718863}
 --- !u!114 &5123987401652238712
@@ -1187,6 +1187,6 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4ff8eebf168c4bb99469fa3f6b624e5a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneInfoEntryView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneInfoEntryViewMono
   _zoneType: {fileID: 11400000, guid: 11c36b9f79674ebaa9db2ebbb9987db9, type: 2}
   _zoneText: {fileID: 222546010628366673}

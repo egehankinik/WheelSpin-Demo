@@ -1253,7 +1253,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b98be522c52705a44b6ec928ddc252f1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Popups.BombPopupView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Popups.BombPopupViewMono
   _content: {fileID: 8616933036601018173}
   _contentGroup: {fileID: 2316810441323792912}
   _duration: 0.3

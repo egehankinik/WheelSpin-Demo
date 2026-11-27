@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: reward_weapon_tier3_shotgun
   m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.Data.RewardDefinition
   _id: weapon_tier3_shotgun
-  _displayName: Elite Shotgun Skin
   _icon: {fileID: 21300000, guid: 07cfcc6f5991b904e8492dc184e24c11, type: 3}
+  _isCurrency: 0
+  _startingBalance: 0

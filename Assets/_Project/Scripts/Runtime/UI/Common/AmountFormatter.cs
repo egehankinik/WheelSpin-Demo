@@ -4,25 +4,37 @@ namespace WheelOfFortune.UI.Common
 {
     public static class AmountFormatter
     {
-        private const int Million = 1_000_000;
-        private const int ShortenThreshold = 10_000;
-        private const int Thousand = 1_000;
+        #region Fields
+
+        private const int MILLION = 1_000_000;
+        private const int SHORTEN_THRESHOLD = 10_000;
+        private const int THOUSAND = 1_000;
+        private const string MULTIPLIER_PREFIX = "x";
+
+        #endregion
+
+        #region Public Methods
 
         public static string Format(int amount)
         {
-            if (amount >= Million)
+            if (amount >= MILLION)
             {
-                return (amount / (float)Million).ToString("0.#", CultureInfo.InvariantCulture) + "M";
+                return (amount / (float)MILLION).ToString("0.#", CultureInfo.InvariantCulture) + "M";
             }
 
-            if (amount >= ShortenThreshold)
+            if (amount >= SHORTEN_THRESHOLD)
             {
-                return (amount / (float)Thousand).ToString("0.#", CultureInfo.InvariantCulture) + "K";
+                return (amount / (float)THOUSAND).ToString("0.#", CultureInfo.InvariantCulture) + "K";
             }
 
             return amount.ToString(CultureInfo.InvariantCulture);
         }
 
-        public static string FormatMultiplier(int amount) => "x" + Format(amount);
+        public static string FormatMultiplier(int amount)
+        {
+            return MULTIPLIER_PREFIX + Format(amount);
+        }
+
+        #endregion
     }
 }

@@ -214,7 +214,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2ec953fe996abdb459fcdbb5e41c3c85, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Rewards.RewardPanelView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Rewards.RewardPanelViewMono
   _exitButton: {fileID: 4635477458379904493}
   _rowContainer: {fileID: 6231117533796138061}
   _rowPrefab: {fileID: 600057776195741417, guid: 90fb844189b1e2e4dab703c516c4bffb, type: 3}

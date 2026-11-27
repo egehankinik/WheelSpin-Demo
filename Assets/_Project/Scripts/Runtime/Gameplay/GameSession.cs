@@ -1,18 +1,21 @@
 using System;
 using WheelOfFortune.Core.Events;
-using WheelOfFortune.Data;
 using WheelOfFortune.Gameplay.Events;
 
 namespace WheelOfFortune.Gameplay
 {
     public sealed class GameSession
     {
+        #region Fields
+
         private readonly ZoneRules _rules;
         private readonly EconomyRules _economy;
         private readonly IRandomProvider _random;
         private readonly IWallet _wallet;
         private readonly IEventBus _events;
         private SpinResult _pendingResult;
+
+        #endregion
 
         public GameSession(ZoneRules rules, EconomyRules economy, IRandomProvider random, IWallet wallet, IEventBus events)
         {
@@ -24,37 +27,77 @@ namespace WheelOfFortune.Gameplay
             Inventory = new RewardInventory(_events);
         }
 
+        #region Properties
+
         public RewardInventory Inventory { get; }
         public int CurrentZone { get; private set; }
         public SessionState State { get; private set; }
-        public ZoneTypeDefinition CurrentZoneType => _rules.GetZoneType(CurrentZone);
-        public WheelDefinition CurrentWheel => _rules.GetWheel(CurrentZone);
-        public bool CanSpin => State == SessionState.Idle;
-        public bool CanLeave => State == SessionState.Idle && _rules.CanLeaveFrom(CurrentZoneType);
-        public bool CanRevive => State == SessionState.Lost && _wallet.Balance >= _economy.ReviveCost;
+
+        public ZoneTypeModel CurrentZoneType
+        {
+            get { return _rules.GetZoneType(CurrentZone); }
+        }
+
+        public WheelModel CurrentWheel
+        {
+            get { return _rules.GetWheel(CurrentZone); }
+        }
+
+        public bool IsRunStartAllowed
+        {
+            get { return State == SessionState.NotStarted || State == SessionState.Collected; }
+        }
+
+        public bool IsSpinAllowed
+        {
+            get { return State == SessionState.Idle; }
+        }
+
+        public bool IsLeaveAllowed
+        {
+            get { return State == SessionState.Idle && _rules.CanLeaveFrom(CurrentZoneType); }
+        }
+
+        public bool IsReviveAllowed
+        {
+            get { return State == SessionState.Lost && _wallet.GetBalance(_economy.ReviveCurrency) >= _economy.ReviveCost; }
+        }
+
+        #endregion
+
+        #region Public Methods
 
         public int GetSliceAmount(int sliceIndex)
         {
             var slice = CurrentWheel.Slices[sliceIndex];
-            return slice.IsBomb ? 0 : _rules.GetScaledAmount(slice.BaseAmount, CurrentZone);
+            if (slice.IsBomb)
+            {
+                return 0;
+            }
+
+            return _rules.GetScaledAmount(slice.BaseAmount, CurrentZone);
         }
 
-        public void StartRun()
+        public bool TryStartRun()
         {
-            Inventory.Clear();
-            SetZone(1);
-            SetState(SessionState.Idle);
+            if (!IsRunStartAllowed)
+            {
+                return false;
+            }
+
+            BeginRun();
+            return true;
         }
 
         public bool TryBeginSpin(out SpinResult result)
         {
             result = default;
-            var wheel = CurrentWheel;
-            if (!CanSpin || wheel == null || wheel.SliceCount == 0)
+            if (!IsSpinAllowed)
             {
                 return false;
             }
 
+            var wheel = CurrentWheel;
             var index = _random.Range(0, wheel.SliceCount);
             _pendingResult = new SpinResult(index, wheel.Slices[index], GetSliceAmount(index));
             result = _pendingResult;
@@ -72,7 +115,7 @@ namespace WheelOfFortune.Gameplay
             if (_pendingResult.IsBomb)
             {
                 SetState(SessionState.Lost);
-                _events.Publish(new BombHitEvent(_economy.ReviveCost, CanRevive));
+                _events.Publish(new BombHitEvent(_economy.ReviveCost, IsReviveAllowed));
                 return;
             }
 
@@ -83,25 +126,27 @@ namespace WheelOfFortune.Gameplay
 
         public bool TryLeave()
         {
-            if (!CanLeave)
+            if (!IsLeaveAllowed)
             {
                 return false;
             }
 
-            var earnedCurrency = Inventory.GetAmount(_economy.CurrencyReward);
-            if (earnedCurrency > 0)
+            foreach (var collected in Inventory.Amounts)
             {
-                _wallet.Add(earnedCurrency);
+                if (collected.Key.IsCurrency)
+                {
+                    _wallet.Add(collected.Key, collected.Value);
+                }
             }
 
             SetState(SessionState.Collected);
-            _events.Publish(new RewardsCollectedEvent(earnedCurrency, _wallet.Balance));
+            _events.Publish(new RewardsCollectedEvent(_wallet.GetBalance(_economy.ReviveCurrency)));
             return true;
         }
 
         public bool TryRevive()
         {
-            if (!CanRevive || !_wallet.TrySpend(_economy.ReviveCost))
+            if (!IsReviveAllowed || !_wallet.TrySpend(_economy.ReviveCurrency, _economy.ReviveCost))
             {
                 return false;
             }
@@ -118,8 +163,19 @@ namespace WheelOfFortune.Gameplay
                 return false;
             }
 
-            StartRun();
+            BeginRun();
             return true;
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void BeginRun()
+        {
+            Inventory.Clear();
+            SetZone(1);
+            SetState(SessionState.Idle);
         }
 
         private void SetZone(int zone)
@@ -133,5 +189,7 @@ namespace WheelOfFortune.Gameplay
             State = state;
             _events.Publish(new SessionStateChangedEvent(State));
         }
+
+        #endregion
     }
 }

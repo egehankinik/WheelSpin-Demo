@@ -6,6 +6,8 @@ namespace WheelOfFortune.Data
     [CreateAssetMenu(fileName = "wheel_", menuName = "WheelOfFortune/Wheel Definition")]
     public sealed class WheelDefinition : ScriptableObject
     {
+        #region Fields
+
         [SerializeField] private string _title;
         [SerializeField] private string _subtitle;
         [SerializeField] private Sprite _wheelSprite;
@@ -13,14 +15,57 @@ namespace WheelOfFortune.Data
         [SerializeField] private Color _glowColor = new Color(1f, 1f, 1f, 0.25f);
         [SerializeField] private List<WheelSlice> _slices = new List<WheelSlice>();
 
-        public string Title => _title;
-        public string Subtitle => _subtitle;
-        public Sprite WheelSprite => _wheelSprite;
-        public Sprite IndicatorSprite => _indicatorSprite;
-        public Color GlowColor => _glowColor;
-        public IReadOnlyList<WheelSlice> Slices => _slices;
-        public int SliceCount => _slices.Count;
-        public float SliceAngle => SliceCount > 0 ? 360f / SliceCount : 0f;
+        #endregion
+
+        #region Properties
+
+        public string Title
+        {
+            get { return _title; }
+        }
+
+        public string Subtitle
+        {
+            get { return _subtitle; }
+        }
+
+        public Sprite WheelSprite
+        {
+            get { return _wheelSprite; }
+        }
+
+        public Sprite IndicatorSprite
+        {
+            get { return _indicatorSprite; }
+        }
+
+        public Color GlowColor
+        {
+            get { return _glowColor; }
+        }
+
+        public IReadOnlyList<WheelSlice> Slices
+        {
+            get { return _slices; }
+        }
+
+        public int SliceCount
+        {
+            get { return _slices.Count; }
+        }
+
+        public float SliceAngle
+        {
+            get
+            {
+                if (SliceCount == 0)
+                {
+                    return 0f;
+                }
+
+                return 360f / SliceCount;
+            }
+        }
 
         public bool HasBomb
         {
@@ -38,21 +83,29 @@ namespace WheelOfFortune.Data
             }
         }
 
-        internal void Initialize(IEnumerable<WheelSlice> slices)
-        {
-            _slices = new List<WheelSlice>(slices);
-        }
+        #endregion
 
+        #region Editor
+
+#if UNITY_EDITOR
         private void OnValidate()
         {
+            if (_slices.Count == 0)
+            {
+                Debug.LogError($"{name}: wheel has no slices.", this);
+            }
+
             for (var i = 0; i < _slices.Count; i++)
             {
                 var slice = _slices[i];
-                if (!slice.IsBomb && slice.Reward == null)
+                if (!slice.IsBomb && !slice.Reward)
                 {
-                    Debug.LogWarning($"{name}: slice {i} has no reward assigned.", this);
+                    Debug.LogError($"{name}: slice {i} has no reward assigned.", this);
                 }
             }
         }
+#endif
+
+        #endregion
     }
 }

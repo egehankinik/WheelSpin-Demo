@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: reward_points_pistol
   m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.Data.RewardDefinition
   _id: points_pistol
-  _displayName: Pistol Points
   _icon: {fileID: 21300000, guid: f80f61312b8c6934e8febd5cc79c7a7e, type: 3}
+  _isCurrency: 0
+  _startingBalance: 0

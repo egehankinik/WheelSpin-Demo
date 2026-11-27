@@ -21,4 +21,8 @@ namespace WheelOfFortune.UI.Events
     public readonly struct RestartRequestedEvent : IGameEvent
     {
     }
+
+    public readonly struct SpinAnimationInterruptedEvent : IGameEvent
+    {
+    }
 }

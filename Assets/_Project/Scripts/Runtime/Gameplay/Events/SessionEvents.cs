@@ -1,18 +1,17 @@
 using WheelOfFortune.Core.Events;
-using WheelOfFortune.Data;
 
 namespace WheelOfFortune.Gameplay.Events
 {
     public readonly struct ZoneChangedEvent : IGameEvent
     {
-        public ZoneChangedEvent(int zone, ZoneTypeDefinition zoneType)
+        public ZoneChangedEvent(int zone, ZoneTypeModel zoneType)
         {
             Zone = zone;
             ZoneType = zoneType;
         }
 
         public int Zone { get; }
-        public ZoneTypeDefinition ZoneType { get; }
+        public ZoneTypeModel ZoneType { get; }
     }
 
     public readonly struct SessionStateChangedEvent : IGameEvent
@@ -27,37 +26,35 @@ namespace WheelOfFortune.Gameplay.Events
 
     public readonly struct BombHitEvent : IGameEvent
     {
-        public BombHitEvent(int reviveCost, bool canAffordRevive)
+        public BombHitEvent(int reviveCost, bool isReviveAffordable)
         {
             ReviveCost = reviveCost;
-            CanAffordRevive = canAffordRevive;
+            IsReviveAffordable = isReviveAffordable;
         }
 
         public int ReviveCost { get; }
-        public bool CanAffordRevive { get; }
+        public bool IsReviveAffordable { get; }
     }
 
     public readonly struct RewardsCollectedEvent : IGameEvent
     {
-        public RewardsCollectedEvent(int depositedCurrency, int balance)
+        public RewardsCollectedEvent(int reviveCurrencyBalance)
         {
-            DepositedCurrency = depositedCurrency;
-            Balance = balance;
+            ReviveCurrencyBalance = reviveCurrencyBalance;
         }
 
-        public int DepositedCurrency { get; }
-        public int Balance { get; }
+        public int ReviveCurrencyBalance { get; }
     }
 
     public readonly struct RewardAmountChangedEvent : IGameEvent
     {
-        public RewardAmountChangedEvent(RewardDefinition reward, int total)
+        public RewardAmountChangedEvent(RewardModel reward, int total)
         {
             Reward = reward;
             Total = total;
         }
 
-        public RewardDefinition Reward { get; }
+        public RewardModel Reward { get; }
         public int Total { get; }
     }
 

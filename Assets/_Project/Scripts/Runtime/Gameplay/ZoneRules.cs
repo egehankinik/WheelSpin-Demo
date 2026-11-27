@@ -1,17 +1,20 @@
 using System;
 using System.Collections.Generic;
-using WheelOfFortune.Data;
 
 namespace WheelOfFortune.Gameplay
 {
     public sealed class ZoneRules
     {
-        private readonly List<ZoneTypeDefinition> _zoneTypes;
-        private readonly ZoneTypeDefinition _defaultZoneType;
+        #region Fields
+
+        private readonly List<ZoneTypeModel> _zoneTypes;
+        private readonly ZoneTypeModel _defaultZoneType;
         private readonly float _rewardGrowthPerZone;
         private readonly int _searchRange;
 
-        public ZoneRules(IEnumerable<ZoneTypeDefinition> zoneTypes, float rewardGrowthPerZone)
+        #endregion
+
+        public ZoneRules(IEnumerable<ZoneTypeModel> zoneTypes, float rewardGrowthPerZone)
         {
             if (zoneTypes == null)
             {
@@ -23,7 +26,7 @@ namespace WheelOfFortune.Gameplay
                 throw new ArgumentOutOfRangeException(nameof(rewardGrowthPerZone));
             }
 
-            _zoneTypes = new List<ZoneTypeDefinition>();
+            _zoneTypes = new List<ZoneTypeModel>();
             _searchRange = 1;
             foreach (var zoneType in zoneTypes)
             {
@@ -55,9 +58,14 @@ namespace WheelOfFortune.Gameplay
             _rewardGrowthPerZone = rewardGrowthPerZone;
         }
 
-        public bool CanLeaveFrom(ZoneTypeDefinition zoneType) => zoneType.IsSafe;
+        #region Public Methods
 
-        public ZoneTypeDefinition GetZoneType(int zone)
+        public bool CanLeaveFrom(ZoneTypeModel zoneType)
+        {
+            return zoneType.IsSafe;
+        }
+
+        public ZoneTypeModel GetZoneType(int zone)
         {
             if (zone < 1)
             {
@@ -76,9 +84,12 @@ namespace WheelOfFortune.Gameplay
             return result;
         }
 
-        public WheelDefinition GetWheel(int zone) => GetZoneType(zone).GetWheel(zone);
+        public WheelModel GetWheel(int zone)
+        {
+            return GetZoneType(zone).GetWheel(zone);
+        }
 
-        public int GetNextZoneOfType(int fromZone, ZoneTypeDefinition zoneType)
+        public int GetNextZoneOfType(int fromZone, ZoneTypeModel zoneType)
         {
             var start = Math.Max(1, fromZone);
             for (var zone = start; zone <= start + _searchRange; zone++)
@@ -97,5 +108,7 @@ namespace WheelOfFortune.Gameplay
             var multiplier = 1f + _rewardGrowthPerZone * (zone - 1);
             return (int)Math.Round(baseAmount * multiplier, MidpointRounding.AwayFromZero);
         }
+
+        #endregion
     }
 }

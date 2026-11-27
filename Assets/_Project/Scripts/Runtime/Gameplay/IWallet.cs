@@ -2,8 +2,8 @@ namespace WheelOfFortune.Gameplay
 {
     public interface IWallet
     {
-        int Balance { get; }
-        void Add(int amount);
-        bool TrySpend(int amount);
+        int GetBalance(RewardModel currency);
+        void Add(RewardModel currency, int amount);
+        bool TrySpend(RewardModel currency, int amount);
     }
 }

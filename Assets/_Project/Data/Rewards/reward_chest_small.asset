@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: reward_chest_small
   m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.Data.RewardDefinition
   _id: chest_small
-  _displayName: Small Chest
   _icon: {fileID: 21300000, guid: 9ed2f5efa136cf547a53f5667c9c68e4, type: 3}
+  _isCurrency: 0
+  _startingBalance: 0

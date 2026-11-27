@@ -4,7 +4,11 @@ namespace WheelOfFortune.Gameplay
 {
     public sealed class SystemRandomProvider : IRandomProvider
     {
+        #region Fields
+
         private readonly Random _random;
+
+        #endregion
 
         public SystemRandomProvider()
         {
@@ -16,6 +20,13 @@ namespace WheelOfFortune.Gameplay
             _random = new Random(seed);
         }
 
-        public int Range(int minInclusive, int maxExclusive) => _random.Next(minInclusive, maxExclusive);
+        #region Public Methods
+
+        public int Range(int minInclusive, int maxExclusive)
+        {
+            return _random.Next(minInclusive, maxExclusive);
+        }
+
+        #endregion
     }
 }

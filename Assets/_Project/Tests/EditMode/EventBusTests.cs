@@ -6,6 +6,8 @@ namespace WheelOfFortune.Tests
 {
     public class EventBusTests
     {
+        #region Setup
+
         private readonly struct TestEvent : IGameEvent
         {
             public TestEvent(int value)
@@ -27,6 +29,10 @@ namespace WheelOfFortune.Tests
         {
             _bus = new EventBus();
         }
+
+        #endregion
+
+        #region Tests
 
         [Test]
         public void Publish_DeliversEventToSubscriber()
@@ -94,5 +100,7 @@ namespace WheelOfFortune.Tests
 
             Assert.AreEqual(1, calls);
         }
+
+        #endregion
     }
 }

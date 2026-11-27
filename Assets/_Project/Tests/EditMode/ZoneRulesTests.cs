@@ -1,40 +1,37 @@
 using System;
 using NUnit.Framework;
-using WheelOfFortune.Data;
 using WheelOfFortune.Gameplay;
 
 namespace WheelOfFortune.Tests
 {
     public class ZoneRulesTests
     {
-        private TestAssets _assets;
-        private ZoneTypeDefinition _normal;
-        private ZoneTypeDefinition _safe;
-        private ZoneTypeDefinition _super;
-        private WheelDefinition _earlyWheel;
-        private WheelDefinition _lateWheel;
+        #region Setup
+
+        private ZoneTypeModel _normal;
+        private ZoneTypeModel _safe;
+        private ZoneTypeModel _super;
+        private WheelModel _earlyWheel;
+        private WheelModel _lateWheel;
         private ZoneRules _rules;
 
         [SetUp]
         public void SetUp()
         {
-            _assets = new TestAssets();
-            var reward = _assets.Reward();
-            _earlyWheel = _assets.Wheel(new WheelSlice(reward, 1), WheelSlice.Bomb());
-            _lateWheel = _assets.Wheel(new WheelSlice(reward, 5), WheelSlice.Bomb());
-            var safeWheel = _assets.Wheel(new WheelSlice(reward, 1));
+            var reward = TestModels.Item("item");
+            _earlyWheel = TestModels.Wheel(new SliceModel(reward, 1), SliceModel.Bomb());
+            _lateWheel = TestModels.Wheel(new SliceModel(reward, 5), SliceModel.Bomb());
+            var safeWheel = TestModels.Wheel(new SliceModel(reward, 1));
 
-            _normal = _assets.ZoneType(0, false, new WheelTier(1, _earlyWheel), new WheelTier(10, _lateWheel));
-            _safe = _assets.ZoneType(5, true, new WheelTier(1, safeWheel));
-            _super = _assets.ZoneType(30, true, new WheelTier(1, safeWheel));
+            _normal = TestModels.ZoneType(0, false, new WheelTierModel(1, _earlyWheel), new WheelTierModel(10, _lateWheel));
+            _safe = TestModels.ZoneType(5, true, new WheelTierModel(1, safeWheel));
+            _super = TestModels.ZoneType(30, true, new WheelTierModel(1, safeWheel));
             _rules = new ZoneRules(new[] { _normal, _safe, _super }, 0.1f);
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            _assets.DestroyAll();
-        }
+        #endregion
+
+        #region Tests
 
         [TestCase(1, 0)]
         [TestCase(4, 0)]
@@ -46,6 +43,15 @@ namespace WheelOfFortune.Tests
         public void GetZoneType_PicksTheLargestMatchingInterval(int zone, int expectedInterval)
         {
             Assert.AreEqual(expectedInterval, _rules.GetZoneType(zone).Interval);
+        }
+
+        [Test]
+        public void GetZoneType_DoesNotDependOnListOrder()
+        {
+            var rules = new ZoneRules(new[] { _super, _safe, _normal }, 0.1f);
+
+            Assert.AreSame(_super, rules.GetZoneType(30));
+            Assert.AreSame(_safe, rules.GetZoneType(35));
         }
 
         [Test]
@@ -89,14 +95,29 @@ namespace WheelOfFortune.Tests
         [Test]
         public void Constructor_WithoutDefaultZoneType_Throws()
         {
-            Assert.Throws<ArgumentException>(() => new ZoneRules(new[] { _safe, _super }, 0f));
+            Assert.Throws<ArgumentException>(CreateRulesWithoutDefault);
         }
 
         [Test]
         public void Constructor_WithTwoDefaultZoneTypes_Throws()
         {
-            var secondDefault = _assets.ZoneType(0, false);
-            Assert.Throws<ArgumentException>(() => new ZoneRules(new[] { _normal, secondDefault }, 0f));
+            Assert.Throws<ArgumentException>(CreateRulesWithTwoDefaults);
         }
+
+        #endregion
+
+        #region Helpers
+
+        private void CreateRulesWithoutDefault()
+        {
+            new ZoneRules(new[] { _safe, _super }, 0f);
+        }
+
+        private void CreateRulesWithTwoDefaults()
+        {
+            new ZoneRules(new[] { _normal, TestModels.ZoneType(0, false) }, 0f);
+        }
+
+        #endregion
     }
 }

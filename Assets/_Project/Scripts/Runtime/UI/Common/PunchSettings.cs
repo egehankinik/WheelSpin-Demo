@@ -22,7 +22,9 @@ namespace WheelOfFortune.UI.Common
 
         public Tween PunchScale(Transform target)
         {
-            return target.DOPunchScale(Vector3.one * _strength, _duration, _vibrato, _elasticity);
+            return target
+                .DOPunchScale(Vector3.one * _strength, _duration, _vibrato, _elasticity)
+                .SetLink(target.gameObject);
         }
     }
 }

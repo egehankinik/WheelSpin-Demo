@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: reward_points_shotgun
   m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.Data.RewardDefinition
   _id: points_shotgun
-  _displayName: Shotgun Points
   _icon: {fileID: 21300000, guid: 0a083ceb50f50034094b9a03b2a419c2, type: 3}
+  _isCurrency: 0
+  _startingBalance: 0

@@ -9,13 +9,14 @@ namespace WheelOfFortune.Data
         [SerializeField, Min(1)] private int _fromZone;
         [SerializeField] private WheelDefinition _wheel;
 
-        public WheelTier(int fromZone, WheelDefinition wheel)
+        public int FromZone
         {
-            _fromZone = fromZone;
-            _wheel = wheel;
+            get { return _fromZone; }
         }
 
-        public int FromZone => _fromZone;
-        public WheelDefinition Wheel => _wheel;
+        public WheelDefinition Wheel
+        {
+            get { return _wheel; }
+        }
     }
 }

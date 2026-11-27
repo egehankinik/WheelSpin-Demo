@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: reward_chest_bronze
   m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.Data.RewardDefinition
   _id: chest_bronze
-  _displayName: Bronze Chest
   _icon: {fileID: 21300000, guid: 280f043ae823b204d857275e2ae9663c, type: 3}
+  _isCurrency: 0
+  _startingBalance: 0

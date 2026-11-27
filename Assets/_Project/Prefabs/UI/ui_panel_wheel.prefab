@@ -87,7 +87,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c6a0b3fb1e160eb4c9cab256eceb74b2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Common.UiRotateLoop
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Common.UiRotateLoopMono
   _degreesPerSecond: -20
 --- !u!1 &1530923263127525249
 GameObject:
@@ -340,7 +340,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 952e204e0cf32c54598aa84296f1c03a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelIndicatorFlapper
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelIndicatorFlapperMono
   _pivot: {fileID: 8388413163369088083}
   _maxDeflection: 30
   _contactStartAngle: 12
@@ -555,7 +555,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: abbf7d7aba205ed4da8d011ec0b8837c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelViewMono
   _spinButton: {fileID: 3872063602603725469}
   _animationRoot: {fileID: 7864273864250941081}
   _rotationRoot: {fileID: 6764586169008497966}
@@ -974,7 +974,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82f2ef88136243c4ea75112c8d649522, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceViewMono
 --- !u!1001 &824264661957056235
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1087,7 +1087,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82f2ef88136243c4ea75112c8d649522, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceViewMono
 --- !u!1001 &958005914250377217
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1200,7 +1200,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82f2ef88136243c4ea75112c8d649522, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceViewMono
 --- !u!1001 &4737026186299513969
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1308,7 +1308,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82f2ef88136243c4ea75112c8d649522, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceViewMono
 --- !u!224 &8270043095425230236 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3708807025877400045, guid: 4c36b8b020bb2cd448aa84edd1852708, type: 3}
@@ -1421,7 +1421,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82f2ef88136243c4ea75112c8d649522, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceViewMono
 --- !u!224 &8633511448773702542 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3708807025877400045, guid: 4c36b8b020bb2cd448aa84edd1852708, type: 3}
@@ -1534,7 +1534,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82f2ef88136243c4ea75112c8d649522, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceViewMono
 --- !u!224 &8780345317766307909 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3708807025877400045, guid: 4c36b8b020bb2cd448aa84edd1852708, type: 3}
@@ -1647,7 +1647,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82f2ef88136243c4ea75112c8d649522, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceViewMono
 --- !u!224 &8954557885164853633 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3708807025877400045, guid: 4c36b8b020bb2cd448aa84edd1852708, type: 3}
@@ -1760,7 +1760,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82f2ef88136243c4ea75112c8d649522, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Wheel.WheelSliceViewMono
 --- !u!224 &4669014046339072180 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3708807025877400045, guid: 4c36b8b020bb2cd448aa84edd1852708, type: 3}

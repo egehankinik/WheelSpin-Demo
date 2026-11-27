@@ -185,6 +185,6 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14cf0ab30495d649a08687262ae5d84, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellView
+  m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.UI.Zone.ZoneCellViewMono
   _rectTransform: {fileID: 3086868870962754634}
   _numberText: {fileID: 4095907255816219602}

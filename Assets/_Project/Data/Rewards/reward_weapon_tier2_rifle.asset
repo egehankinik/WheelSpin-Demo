@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: reward_weapon_tier2_rifle
   m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.Data.RewardDefinition
   _id: weapon_tier2_rifle
-  _displayName: Rifle Skin
   _icon: {fileID: 21300000, guid: 717c6023b823b1241abb6ad64f218dd9, type: 3}
+  _isCurrency: 0
+  _startingBalance: 0

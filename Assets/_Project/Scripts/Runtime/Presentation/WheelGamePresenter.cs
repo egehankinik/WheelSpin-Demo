@@ -1,49 +1,43 @@
-using UnityEngine;
+using System;
+using WheelOfFortune.Configuration;
 using WheelOfFortune.Core.Events;
 using WheelOfFortune.Data;
 using WheelOfFortune.Gameplay;
 using WheelOfFortune.Gameplay.Events;
 using WheelOfFortune.UI.Events;
-using WheelOfFortune.UI.Popups;
-using WheelOfFortune.UI.Rewards;
-using WheelOfFortune.UI.Wheel;
-using WheelOfFortune.UI.Zone;
 
 namespace WheelOfFortune.Presentation
 {
-    public sealed class WheelGamePresenter : MonoBehaviour
+    public sealed class WheelGamePresenter
     {
-        [SerializeField] private ZoneSettings _zoneSettings;
-        [SerializeField] private EconomySettings _economySettings;
-        [SerializeField] private WheelView _wheelView;
-        [SerializeField] private ZoneBarView _zoneBarView;
-        [SerializeField] private ZoneInfoView _zoneInfoView;
-        [SerializeField] private RewardPanelView _rewardPanelView;
-        [SerializeField] private RewardFlyAnimator _rewardFlyAnimator;
-        [SerializeField] private BombPopupView _bombPopupView;
-        [SerializeField] private CollectedPopupView _collectedPopupView;
-        [SerializeField] private int _targetFrameRate = 60;
+        #region Fields
 
-        private IEventBus _events;
-        private ZoneRules _rules;
-        private GameSession _session;
+        private readonly IEventBus _events;
+        private readonly GameSession _session;
+        private readonly GameConfiguration _configuration;
+        private readonly WheelGameViews _views;
+        private SpinResult _currentSpin;
 
-        private void Awake()
+        #endregion
+
+        public WheelGamePresenter(IEventBus events, GameSession session, GameConfiguration configuration, WheelGameViews views)
         {
-            Application.targetFrameRate = _targetFrameRate;
-            _events = new EventBus();
-            _rules = _zoneSettings.CreateRules();
-            var wallet = new PlayerPrefsWallet(_economySettings.WalletKey, _economySettings.StartingBalance);
-            _session = new GameSession(_rules, _economySettings.CreateRules(), new SystemRandomProvider(), wallet, _events);
+            _events = events ?? throw new ArgumentNullException(nameof(events));
+            _session = session ?? throw new ArgumentNullException(nameof(session));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _views = views ?? throw new ArgumentNullException(nameof(views));
 
-            _zoneBarView.Initialize(_rules);
-            _wheelView.Initialize(_events);
-            _rewardPanelView.Initialize(_events);
-            _bombPopupView.Initialize(_events);
-            _collectedPopupView.Initialize(_events);
+            _views.ZoneBarView.Initialize(GetZoneTypeDefinition);
+            _views.WheelView.Initialize(_events);
+            _views.RewardPanelView.Initialize(_events);
+            _views.RewardFlyAnimator.Initialize(_events);
+            _views.BombPopupView.Initialize(_events);
+            _views.CollectedPopupView.Initialize(_events);
         }
 
-        private void OnEnable()
+        #region Public Methods
+
+        public void Enable()
         {
             _events.Subscribe<ZoneChangedEvent>(HandleZoneChanged);
             _events.Subscribe<SessionStateChangedEvent>(HandleStateChanged);
@@ -52,13 +46,14 @@ namespace WheelOfFortune.Presentation
             _events.Subscribe<RewardAmountChangedEvent>(HandleRewardAmountChanged);
             _events.Subscribe<RewardsClearedEvent>(HandleRewardsCleared);
             _events.Subscribe<SpinRequestedEvent>(HandleSpinRequested);
+            _events.Subscribe<SpinAnimationInterruptedEvent>(HandleSpinAnimationInterrupted);
             _events.Subscribe<LeaveRequestedEvent>(HandleLeaveRequested);
             _events.Subscribe<GiveUpRequestedEvent>(HandleGiveUpRequested);
             _events.Subscribe<ReviveRequestedEvent>(HandleReviveRequested);
             _events.Subscribe<RestartRequestedEvent>(HandleRestartRequested);
         }
 
-        private void OnDisable()
+        public void Disable()
         {
             _events.Unsubscribe<ZoneChangedEvent>(HandleZoneChanged);
             _events.Unsubscribe<SessionStateChangedEvent>(HandleStateChanged);
@@ -67,60 +62,72 @@ namespace WheelOfFortune.Presentation
             _events.Unsubscribe<RewardAmountChangedEvent>(HandleRewardAmountChanged);
             _events.Unsubscribe<RewardsClearedEvent>(HandleRewardsCleared);
             _events.Unsubscribe<SpinRequestedEvent>(HandleSpinRequested);
+            _events.Unsubscribe<SpinAnimationInterruptedEvent>(HandleSpinAnimationInterrupted);
             _events.Unsubscribe<LeaveRequestedEvent>(HandleLeaveRequested);
             _events.Unsubscribe<GiveUpRequestedEvent>(HandleGiveUpRequested);
             _events.Unsubscribe<ReviveRequestedEvent>(HandleReviveRequested);
             _events.Unsubscribe<RestartRequestedEvent>(HandleRestartRequested);
         }
 
-        private void Start()
+        public void StartGame()
         {
-            _session.StartRun();
+            _session.TryStartRun();
         }
+
+        #endregion
+
+        #region Session Event Handlers
 
         private void HandleZoneChanged(ZoneChangedEvent zoneChanged)
         {
             var zone = zoneChanged.Zone;
-            _wheelView.Bind(_session.CurrentWheel, _session.GetSliceAmount, zone > 1);
-            _zoneBarView.ShowZone(zone);
-            _zoneInfoView.Show(zone, _rules);
+            var wheel = _configuration.GetDefinition(_session.CurrentWheel);
+            _views.WheelView.Bind(wheel, _session.GetSliceAmount, zone > 1);
+            _views.ZoneBarView.ShowZone(zone);
+            _views.ZoneInfoView.Show(GetNextZoneOfType);
         }
 
         private void HandleStateChanged(SessionStateChangedEvent stateChanged)
         {
-            _wheelView.SetSpinInteractable(_session.CanSpin);
-            _rewardPanelView.SetExitInteractable(_session.CanLeave);
+            _views.WheelView.SetSpinInteractable(_session.IsSpinAllowed);
+            _views.RewardPanelView.SetExitInteractable(_session.IsLeaveAllowed);
         }
 
         private void HandleRewardAmountChanged(RewardAmountChangedEvent amountChanged)
         {
-            _rewardPanelView.SetAmount(amountChanged.Reward, amountChanged.Total);
+            _views.RewardPanelView.SetAmount(_configuration.GetDefinition(amountChanged.Reward), amountChanged.Total);
         }
 
         private void HandleRewardsCleared(RewardsClearedEvent cleared)
         {
-            _rewardPanelView.Clear();
+            _views.RewardPanelView.Clear();
         }
+
+        private void HandleBombHit(BombHitEvent bombHit)
+        {
+            _views.BombPopupView.Show(bombHit.ReviveCost, bombHit.IsReviveAffordable);
+        }
+
+        private void HandleRewardsCollected(RewardsCollectedEvent collected)
+        {
+            _views.CollectedPopupView.Show(collected.ReviveCurrencyBalance);
+        }
+
+        #endregion
+
+        #region Request Event Handlers
 
         private void HandleSpinRequested(SpinRequestedEvent request)
         {
-            if (_session.TryBeginSpin(out var result))
+            if (_session.TryBeginSpin(out _currentSpin))
             {
-                _wheelView.Spin(result.SliceIndex, () => HandleWheelStopped(result));
+                _views.WheelView.Spin(_currentSpin.SliceIndex, HandleWheelStopped);
             }
         }
 
-        private void HandleWheelStopped(SpinResult result)
+        private void HandleSpinAnimationInterrupted(SpinAnimationInterruptedEvent interrupted)
         {
-            if (result.IsBomb)
-            {
-                _wheelView.PlayBombHit(_session.CompleteSpin);
-                return;
-            }
-
-            var from = _wheelView.GetSliceIconRect(result.SliceIndex);
-            var to = _rewardPanelView.GetIconTarget(result.Reward);
-            _rewardFlyAnimator.Play(result.Reward.Icon, from, to, _session.CompleteSpin);
+            _session.CompleteSpin();
         }
 
         private void HandleLeaveRequested(LeaveRequestedEvent request)
@@ -128,16 +135,11 @@ namespace WheelOfFortune.Presentation
             _session.TryLeave();
         }
 
-        private void HandleBombHit(BombHitEvent bombHit)
-        {
-            _bombPopupView.Show(bombHit.ReviveCost, bombHit.CanAffordRevive);
-        }
-
         private void HandleGiveUpRequested(GiveUpRequestedEvent request)
         {
             if (_session.TryGiveUp())
             {
-                _bombPopupView.Close();
+                _views.BombPopupView.Close();
             }
         }
 
@@ -145,19 +147,46 @@ namespace WheelOfFortune.Presentation
         {
             if (_session.TryRevive())
             {
-                _bombPopupView.Close();
+                _views.BombPopupView.Close();
             }
-        }
-
-        private void HandleRewardsCollected(RewardsCollectedEvent collected)
-        {
-            _collectedPopupView.Show(collected.Balance);
         }
 
         private void HandleRestartRequested(RestartRequestedEvent request)
         {
-            _collectedPopupView.Close();
-            _session.StartRun();
+            if (_session.TryStartRun())
+            {
+                _views.CollectedPopupView.Close();
+            }
         }
+
+        #endregion
+
+        #region Private Methods
+
+        private void HandleWheelStopped()
+        {
+            if (_currentSpin.IsBomb)
+            {
+                _views.WheelView.PlayBombHit(_session.CompleteSpin);
+                return;
+            }
+
+            var reward = _configuration.GetDefinition(_currentSpin.Reward);
+            var from = _views.WheelView.GetSliceIconRect(_currentSpin.SliceIndex);
+            var to = _views.RewardPanelView.GetIconTarget(reward);
+            _views.RewardFlyAnimator.Play(reward.Icon, from, to, _session.CompleteSpin);
+        }
+
+        private ZoneTypeDefinition GetZoneTypeDefinition(int zone)
+        {
+            return _configuration.GetDefinition(_configuration.ZoneRules.GetZoneType(zone));
+        }
+
+        private int GetNextZoneOfType(ZoneTypeDefinition zoneType)
+        {
+            return _configuration.ZoneRules.GetNextZoneOfType(_session.CurrentZone, _configuration.GetZoneType(zoneType));
+        }
+
+        #endregion
     }
 }

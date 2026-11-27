@@ -10,17 +10,19 @@ namespace WheelOfFortune.Data
         [SerializeField, Min(1)] private int _baseAmount;
         [SerializeField] private bool _isBomb;
 
-        public WheelSlice(RewardDefinition reward, int baseAmount, bool isBomb = false)
+        public RewardDefinition Reward
         {
-            _reward = reward;
-            _baseAmount = baseAmount;
-            _isBomb = isBomb;
+            get { return _reward; }
         }
 
-        public static WheelSlice Bomb() => new WheelSlice(null, 0, true);
+        public int BaseAmount
+        {
+            get { return _baseAmount; }
+        }
 
-        public RewardDefinition Reward => _reward;
-        public int BaseAmount => _baseAmount;
-        public bool IsBomb => _isBomb;
+        public bool IsBomb
+        {
+            get { return _isBomb; }
+        }
     }
 }

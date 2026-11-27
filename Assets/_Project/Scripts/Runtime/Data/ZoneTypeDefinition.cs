@@ -6,70 +6,74 @@ namespace WheelOfFortune.Data
     [CreateAssetMenu(fileName = "zone_type_", menuName = "WheelOfFortune/Zone Type Definition")]
     public sealed class ZoneTypeDefinition : ScriptableObject
     {
+        #region Fields
+
         [SerializeField, Min(0), Tooltip("Every Nth zone is this type. 0 marks the default type used when no other type matches.")]
         private int _interval;
         [SerializeField, Tooltip("Safe zones have no bomb and let the player leave with the rewards.")]
         private bool _isSafe;
         [SerializeField] private List<WheelTier> _wheelTiers = new List<WheelTier>();
 
-        public int Interval => _interval;
-        public bool IsSafe => _isSafe;
-        public bool IsDefault => _interval == 0;
-        public IReadOnlyList<WheelTier> WheelTiers => _wheelTiers;
+        #endregion
 
-        public bool Matches(int zone) => !IsDefault && zone % _interval == 0;
+        #region Properties
 
-        public WheelDefinition GetWheel(int zone)
+        public int Interval
         {
-            WheelDefinition wheel = null;
-            var bestFromZone = int.MinValue;
-            foreach (var tier in _wheelTiers)
-            {
-                if (tier.FromZone <= zone && tier.FromZone > bestFromZone)
-                {
-                    bestFromZone = tier.FromZone;
-                    wheel = tier.Wheel;
-                }
-            }
-
-            return wheel;
+            get { return _interval; }
         }
 
-        internal void Initialize(int interval, bool isSafe, IEnumerable<WheelTier> wheelTiers)
+        public bool IsSafe
         {
-            _interval = interval;
-            _isSafe = isSafe;
-            _wheelTiers = new List<WheelTier>(wheelTiers);
+            get { return _isSafe; }
         }
 
+        public bool IsDefault
+        {
+            get { return _interval == 0; }
+        }
+
+        public IReadOnlyList<WheelTier> WheelTiers
+        {
+            get { return _wheelTiers; }
+        }
+
+        #endregion
+
+        #region Editor
+
+#if UNITY_EDITOR
         private void OnValidate()
         {
-            if (_wheelTiers.Count == 0)
-            {
-                Debug.LogWarning($"{name}: zone type has no wheel tiers.", this);
-                return;
-            }
-
-            if (GetWheel(1) == null)
-            {
-                Debug.LogWarning($"{name}: no wheel tier starts at zone 1.", this);
-            }
-
+            var hasTierFromZoneOne = false;
             foreach (var tier in _wheelTiers)
             {
-                if (tier.Wheel == null)
+                if (tier.FromZone == 1)
                 {
-                    Debug.LogWarning($"{name}: wheel tier from zone {tier.FromZone} has no wheel.", this);
+                    hasTierFromZoneOne = true;
+                }
+
+                if (!tier.Wheel)
+                {
+                    Debug.LogError($"{name}: wheel tier from zone {tier.FromZone} has no wheel.", this);
                 }
                 else if (_isSafe && tier.Wheel.HasBomb)
                 {
-                    Debug.LogWarning($"{name}: safe zone wheel {tier.Wheel.name} must not contain a bomb.", this);
+                    Debug.LogError($"{name}: safe zone wheel {tier.Wheel.name} must not contain a bomb.", this);
                 }
                 else if (!_isSafe && !tier.Wheel.HasBomb)
                 {
-                    Debug.LogWarning($"{name}: risky zone wheel {tier.Wheel.name} has no bomb.", this);
+                    Debug.LogError($"{name}: risky zone wheel {tier.Wheel.name} has no bomb.", this);
                 }
             }
+
+            if (!hasTierFromZoneOne)
+            {
+                Debug.LogError($"{name}: no wheel tier starts at zone 1.", this);
+            }
         }
+#endif
+
+        #endregion
     }
 }

@@ -5,7 +5,13 @@ namespace WheelOfFortune.Core.Events
 {
     public sealed class EventBus : IEventBus
     {
+        #region Fields
+
         private readonly Dictionary<Type, Delegate> _handlers = new Dictionary<Type, Delegate>();
+
+        #endregion
+
+        #region Public Methods
 
         public void Subscribe<T>(Action<T> handler) where T : struct, IGameEvent
         {
@@ -42,5 +48,7 @@ namespace WheelOfFortune.Core.Events
                 ((Action<T>)handler).Invoke(gameEvent);
             }
         }
+
+        #endregion
     }
 }

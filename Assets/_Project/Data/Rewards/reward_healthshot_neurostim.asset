@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: reward_healthshot_neurostim
   m_EditorClassIdentifier: WheelOfFortune.Runtime::WheelOfFortune.Data.RewardDefinition
   _id: healthshot_neurostim
-  _displayName: Neurostim
   _icon: {fileID: 21300000, guid: 2ef193ebfa5541a48927b4153f197422, type: 3}
+  _isCurrency: 0
+  _startingBalance: 0

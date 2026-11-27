@@ -1,9 +1,12 @@
+using System;
 using UnityEngine;
 
 namespace WheelOfFortune.UI.Common
 {
     public static class UiReferenceFinder
     {
+        #region Public Methods
+
         public static T Find<T>(Component root, string childName) where T : Component
         {
             foreach (var child in root.GetComponentsInChildren<Transform>(true))
@@ -14,7 +17,7 @@ namespace WheelOfFortune.UI.Common
                 }
             }
 
-            Debug.LogWarning($"{root.name}: child '{childName}' with {typeof(T).Name} was not found.", root);
+            Debug.LogError($"{root.name}: child '{childName}' with {typeof(T).Name} was not found.", root);
             return null;
         }
 
@@ -22,14 +25,16 @@ namespace WheelOfFortune.UI.Common
         {
             foreach (var child in root.GetComponentsInChildren<Transform>(true))
             {
-                if (child.name.EndsWith(nameSuffix, System.StringComparison.Ordinal) && child.TryGetComponent<T>(out var component))
+                if (child.name.EndsWith(nameSuffix, StringComparison.Ordinal) && child.TryGetComponent<T>(out var component))
                 {
                     return component;
                 }
             }
 
-            Debug.LogWarning($"{root.name}: no child ending with '{nameSuffix}' with {typeof(T).Name} was found.", root);
+            Debug.LogError($"{root.name}: no child ending with '{nameSuffix}' with {typeof(T).Name} was found.", root);
             return null;
         }
+
+        #endregion
     }
 }

@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using WheelOfFortune.Core.Events;
-using WheelOfFortune.Data;
 using WheelOfFortune.Gameplay;
 using WheelOfFortune.Gameplay.Events;
 
@@ -8,16 +7,21 @@ namespace WheelOfFortune.Tests
 {
     public class GameSessionTests
     {
-        private const int RewardSliceIndex = 0;
-        private const int BombSliceIndex = 1;
-        private const int ReviveCost = 25;
-        private const int StartingBalance = 100;
+        #region Setup
 
-        private TestAssets _assets;
-        private RewardDefinition _gold;
-        private ZoneTypeDefinition _normal;
-        private ZoneTypeDefinition _safe;
-        private ZoneTypeDefinition _super;
+        private const int REWARD_SLICE_INDEX = 0;
+        private const int BOMB_SLICE_INDEX = 1;
+        private const int CASH_SLICE_INDEX = 2;
+        private const int ITEM_SLICE_INDEX = 3;
+        private const int REVIVE_COST = 25;
+        private const int STARTING_BALANCE = 100;
+
+        private RewardModel _gold;
+        private RewardModel _cash;
+        private RewardModel _item;
+        private ZoneTypeModel _normal;
+        private ZoneTypeModel _safe;
+        private ZoneTypeModel _super;
         private FixedRandomProvider _random;
         private FakeWallet _wallet;
         private EventBus _events;
@@ -26,25 +30,25 @@ namespace WheelOfFortune.Tests
         [SetUp]
         public void SetUp()
         {
-            _assets = new TestAssets();
-            _gold = _assets.Reward();
-            var riskyWheel = _assets.Wheel(new WheelSlice(_gold, 100), WheelSlice.Bomb());
-            var safeWheel = _assets.Wheel(new WheelSlice(_gold, 100), new WheelSlice(_gold, 200));
-            _normal = _assets.ZoneType(0, false, new WheelTier(1, riskyWheel));
-            _safe = _assets.ZoneType(5, true, new WheelTier(1, safeWheel));
-            _super = _assets.ZoneType(30, true, new WheelTier(1, safeWheel));
+            _gold = TestModels.Currency("gold", STARTING_BALANCE);
+            _cash = TestModels.Currency("cash");
+            _item = TestModels.Item("item");
+            var riskyWheel = TestModels.Wheel(new SliceModel(_gold, 100), SliceModel.Bomb(), new SliceModel(_cash, 10), new SliceModel(_item, 1));
+            var safeWheel = TestModels.Wheel(new SliceModel(_gold, 100), new SliceModel(_gold, 200));
+            _normal = TestModels.ZoneType(0, false, new WheelTierModel(1, riskyWheel));
+            _safe = TestModels.ZoneType(5, true, new WheelTierModel(1, safeWheel));
+            _super = TestModels.ZoneType(30, true, new WheelTierModel(1, safeWheel));
 
             _random = new FixedRandomProvider();
             _events = new EventBus();
-            _session = CreateSession(StartingBalance);
-            _session.StartRun();
+            _wallet = new FakeWallet();
+            _session = CreateSession();
+            _session.TryStartRun();
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            _assets.DestroyAll();
-        }
+        #endregion
+
+        #region Run Start
 
         [Test]
         public void StartRun_BeginsAtZoneOneAndIdle()
@@ -55,9 +59,43 @@ namespace WheelOfFortune.Tests
         }
 
         [Test]
+        public void StartRun_DuringARun_IsRejected()
+        {
+            Spin(REWARD_SLICE_INDEX);
+
+            Assert.IsFalse(_session.TryStartRun());
+            Assert.AreEqual(2, _session.CurrentZone);
+            Assert.IsFalse(_session.Inventory.IsEmpty);
+        }
+
+        [Test]
+        public void StartRun_WhileSpinning_IsRejected()
+        {
+            _session.TryBeginSpin(out _);
+
+            Assert.IsFalse(_session.TryStartRun());
+            Assert.AreEqual(SessionState.Spinning, _session.State);
+        }
+
+        [Test]
+        public void StartRun_AfterCollecting_RestartsTheRun()
+        {
+            SpinTo(5);
+            _session.TryLeave();
+
+            Assert.IsTrue(_session.TryStartRun());
+            Assert.AreEqual(1, _session.CurrentZone);
+            Assert.IsTrue(_session.Inventory.IsEmpty);
+        }
+
+        #endregion
+
+        #region Spinning
+
+        [Test]
         public void RewardSpin_AddsRewardAndAdvancesZone()
         {
-            Spin(RewardSliceIndex);
+            Spin(REWARD_SLICE_INDEX);
 
             Assert.AreEqual(100, _session.Inventory.GetAmount(_gold));
             Assert.AreEqual(2, _session.CurrentZone);
@@ -77,24 +115,57 @@ namespace WheelOfFortune.Tests
         }
 
         [Test]
+        public void CannotSpinWhileSpinning()
+        {
+            _session.TryBeginSpin(out _);
+
+            Assert.IsFalse(_session.TryBeginSpin(out _));
+        }
+
+        [Test]
+        public void CompleteSpin_CalledTwice_AppliesTheResultOnce()
+        {
+            _session.TryBeginSpin(out _);
+
+            _session.CompleteSpin();
+            _session.CompleteSpin();
+
+            Assert.AreEqual(100, _session.Inventory.GetAmount(_gold));
+            Assert.AreEqual(2, _session.CurrentZone);
+        }
+
+        [Test]
+        public void CompleteSpin_WithoutASpin_DoesNothing()
+        {
+            _session.CompleteSpin();
+
+            Assert.AreEqual(1, _session.CurrentZone);
+            Assert.AreEqual(SessionState.Idle, _session.State);
+        }
+
+        #endregion
+
+        #region Bomb And Revive
+
+        [Test]
         public void BombSpin_SetsLostStateAndPublishesReviveCost()
         {
             BombHitEvent received = default;
             _events.Subscribe<BombHitEvent>(e => received = e);
 
-            Spin(BombSliceIndex);
+            Spin(BOMB_SLICE_INDEX);
 
             Assert.AreEqual(SessionState.Lost, _session.State);
-            Assert.IsFalse(_session.CanSpin);
-            Assert.AreEqual(ReviveCost, received.ReviveCost);
-            Assert.IsTrue(received.CanAffordRevive);
+            Assert.IsFalse(_session.IsSpinAllowed);
+            Assert.AreEqual(REVIVE_COST, received.ReviveCost);
+            Assert.IsTrue(received.IsReviveAffordable);
         }
 
         [Test]
         public void GiveUp_AfterBomb_ClearsRewardsAndRestarts()
         {
-            Spin(RewardSliceIndex);
-            Spin(BombSliceIndex);
+            Spin(REWARD_SLICE_INDEX);
+            Spin(BOMB_SLICE_INDEX);
 
             Assert.IsTrue(_session.TryGiveUp());
 
@@ -105,12 +176,12 @@ namespace WheelOfFortune.Tests
         [Test]
         public void Revive_AfterBomb_SpendsCostAndKeepsRewards()
         {
-            Spin(RewardSliceIndex);
-            Spin(BombSliceIndex);
+            Spin(REWARD_SLICE_INDEX);
+            Spin(BOMB_SLICE_INDEX);
 
             Assert.IsTrue(_session.TryRevive());
 
-            Assert.AreEqual(StartingBalance - ReviveCost, _wallet.Balance);
+            Assert.AreEqual(STARTING_BALANCE - REVIVE_COST, _wallet.GetBalance(_gold));
             Assert.AreEqual(100, _session.Inventory.GetAmount(_gold));
             Assert.AreEqual(SessionState.Idle, _session.State);
         }
@@ -118,13 +189,12 @@ namespace WheelOfFortune.Tests
         [Test]
         public void Revive_WithoutEnoughCurrency_FailsAndKeepsBalance()
         {
-            _session = CreateSession(ReviveCost - 1);
-            _session.StartRun();
-            Spin(BombSliceIndex);
+            _wallet.SetBalance(_gold, REVIVE_COST - 1);
+            Spin(BOMB_SLICE_INDEX);
 
-            Assert.IsFalse(_session.CanRevive);
+            Assert.IsFalse(_session.IsReviveAllowed);
             Assert.IsFalse(_session.TryRevive());
-            Assert.AreEqual(ReviveCost - 1, _wallet.Balance);
+            Assert.AreEqual(REVIVE_COST - 1, _wallet.GetBalance(_gold));
             Assert.AreEqual(SessionState.Lost, _session.State);
         }
 
@@ -132,23 +202,18 @@ namespace WheelOfFortune.Tests
         public void Revive_WhenNotLost_Fails()
         {
             Assert.IsFalse(_session.TryRevive());
-            Assert.AreEqual(StartingBalance, _wallet.Balance);
+            Assert.AreEqual(STARTING_BALANCE, _wallet.GetBalance(_gold));
         }
 
-        [Test]
-        public void CannotSpinWhileSpinning()
-        {
-            _random.NextValue = RewardSliceIndex;
-            _session.TryBeginSpin(out _);
+        #endregion
 
-            Assert.IsFalse(_session.TryBeginSpin(out _));
-        }
+        #region Leaving
 
         [Test]
         public void CannotLeaveInNormalZone()
         {
             Assert.AreSame(_normal, _session.CurrentZoneType);
-            Assert.IsFalse(_session.CanLeave);
+            Assert.IsFalse(_session.IsLeaveAllowed);
             Assert.IsFalse(_session.TryLeave());
         }
 
@@ -181,24 +246,39 @@ namespace WheelOfFortune.Tests
         }
 
         [Test]
-        public void Leave_DepositsCollectedCurrencyIntoWallet()
+        public void Leave_DepositsEveryCollectedCurrencyIntoTheWallet()
         {
             RewardsCollectedEvent received = default;
             _events.Subscribe<RewardsCollectedEvent>(e => received = e);
+            Spin(CASH_SLICE_INDEX);
+            Spin(ITEM_SLICE_INDEX);
             SpinTo(5);
 
             _session.TryLeave();
 
-            Assert.AreEqual(StartingBalance + 400, _wallet.Balance);
-            Assert.AreEqual(400, received.DepositedCurrency);
-            Assert.AreEqual(_wallet.Balance, received.Balance);
+            Assert.AreEqual(STARTING_BALANCE + 200, _wallet.GetBalance(_gold));
+            Assert.AreEqual(10, _wallet.GetBalance(_cash));
+            Assert.AreEqual(_wallet.GetBalance(_gold), received.ReviveCurrencyBalance);
         }
 
-        private GameSession CreateSession(int balance)
+        [Test]
+        public void Leave_WithCollectedItems_OnlyDepositsCurrencies()
         {
-            _wallet = new FakeWallet(balance);
+            Spin(ITEM_SLICE_INDEX);
+            SpinTo(5);
+
+            Assert.IsTrue(_session.TryLeave());
+            Assert.AreEqual(1, _session.Inventory.GetAmount(_item));
+        }
+
+        #endregion
+
+        #region Helpers
+
+        private GameSession CreateSession()
+        {
             var rules = new ZoneRules(new[] { _normal, _safe, _super }, 0f);
-            var economy = new EconomyRules(ReviveCost, _gold);
+            var economy = new EconomyRules(_gold, REVIVE_COST);
             return new GameSession(rules, economy, _random, _wallet, _events);
         }
 
@@ -206,7 +286,7 @@ namespace WheelOfFortune.Tests
         {
             while (_session.CurrentZone < zone)
             {
-                Spin(RewardSliceIndex);
+                Spin(REWARD_SLICE_INDEX);
             }
         }
 
@@ -216,5 +296,7 @@ namespace WheelOfFortune.Tests
             _session.TryBeginSpin(out _);
             _session.CompleteSpin();
         }
+
+        #endregion
     }
 }
